@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Manrope, Inter } from "next/font/google";
 import { motion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 import {
@@ -21,9 +20,6 @@ import {
   CheckCircle2,
   ArrowUpRight,
 } from "lucide-react";
-
-const manrope = Manrope({ subsets: ["latin"], weight: ["700", "800"] });
-const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"] });
 
 // Single source of truth for the heading blue used across every
 // section — matches the "About Conbell Engineering" hero heading.
@@ -234,7 +230,7 @@ const FOUNDERS = [
 
 export default function AboutPage() {
   return (
-    <main className={inter.className}>
+    <main>
       {/* ============ HERO ============ */}
       <section className="bg-[#EFF4FF] px-6 pb-10 pt-8">
         <div className="mx-auto max-w-[95%] py-4">
@@ -256,7 +252,7 @@ export default function AboutPage() {
               <AnimatedHeading
                 as="h1"
                 text="About Conbell Engineering"
-                className={`${manrope.className} mt-1 text-3xl font-bold ${HEADING_COLOR} sm:text-4xl`}
+                className={`font-sans mt-1 text-3xl font-bold ${HEADING_COLOR} sm:text-4xl`}
               />
             </div>
             <Reveal delay={0.15}>
@@ -299,7 +295,7 @@ export default function AboutPage() {
             <AnimatedHeading
               as="h2"
               text="Engineering Solutions Built on Precision and Trust"
-              className={`${manrope.className} max-w-md mt-1 text-2xl font-extrabold leading-snug ${HEADING_COLOR} sm:text-3xl`}
+              className={`font-sans max-w-md mt-1 text-2xl font-extrabold leading-snug ${HEADING_COLOR} sm:text-3xl`}
             />
             <p className="mt-4 text-md leading-relaxed text-[#5B5E67]">
               At Conbell Engineering, we are committed to delivering
@@ -332,7 +328,7 @@ export default function AboutPage() {
             <AnimatedHeading
               as="h2"
               text="Meet Our Founders"
-              className={`${manrope.className} mt-1 text-3xl font-extrabold ${HEADING_COLOR} sm:text-4xl`}
+              className={`font-sans mt-1 text-3xl font-extrabold ${HEADING_COLOR} sm:text-4xl`}
               viewportAmount={0.6}
             />
           </div>
@@ -360,7 +356,7 @@ export default function AboutPage() {
                       {person.message || "Founder message to be added."}
                     </p>
                     <h3
-                      className={`${manrope.className} mt-6 text-2xl font-bold ${HEADING_COLOR}`}
+                      className={`font-sans mt-6 text-2xl font-bold ${HEADING_COLOR}`}
                     >
                       {person.name}
                     </h3>
@@ -415,7 +411,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
             <Reveal className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
               <p
-                className={`${manrope.className} flex items-center gap-2 text-[15px] font-bold ${HEADING_COLOR}`}
+                className={`font-sans flex items-center gap-2 text-[15px] font-bold ${HEADING_COLOR}`}
               >
                 <Eye size={18} className="text-[#0F4C81]" />
                 Our Vision
@@ -433,7 +429,7 @@ export default function AboutPage() {
               className="rounded-2xl bg-[#0B2A4A] p-6 text-white sm:p-8"
             >
               <p
-                className={`${manrope.className} flex items-center gap-2 text-[15px] font-bold`}
+                className={`font-sans flex items-center gap-2 text-[15px] font-bold`}
               >
                 <Flag size={18} className="text-[#7FB2E5]" />
                 Our Mission
@@ -476,7 +472,7 @@ export default function AboutPage() {
             <AnimatedHeading
               as="h2"
               text="Core Values"
-              className={`${manrope.className} mt-1 text-2xl font-extrabold ${HEADING_COLOR} sm:text-3xl`}
+              className={`font-sans mt-1 text-2xl font-extrabold ${HEADING_COLOR} sm:text-3xl`}
             />
           </div>
 
@@ -498,7 +494,7 @@ export default function AboutPage() {
                     />
                   </div>
                   <h3
-                    className={`${manrope.className} mt-3 text-[13px] font-bold ${HEADING_COLOR} sm:mt-4 sm:text-[15px]`}
+                    className={`font-sans mt-3 text-[13px] font-bold ${HEADING_COLOR} sm:mt-4 sm:text-[15px]`}
                   >
                     {value.title}
                   </h3>
