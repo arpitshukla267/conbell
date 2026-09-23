@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -12,23 +13,7 @@ const manrope = Manrope({
 });
 
 // ---------- Types ----------
-
-type Category = "all" | "conveyor" | "assembly" | "platform" | "fabrication";
-
-interface Spec {
-  label: string;
-  value: string;
-}
-
-interface Service {
-  id: string;
-  category: Exclude<Category, "all">;
-  badge: string;
-  title: string;
-  description: string;
-  specs: Spec[];
-  image: string;
-}
+import { SERVICES, type Service, type Category, type Spec } from "../data/services";
 
 // ---------- Scroll-in-view hook ----------
 // Fires once when the element enters the viewport, then disconnects.
@@ -125,78 +110,6 @@ const FILTERS: { label: string; value: Category }[] = [
   { label: "Heavy Fabrication", value: "fabrication" },
 ];
 
-const SERVICES: Service[] = [
-  {
-    id: "conveyor-support-structures",
-    category: "conveyor",
-    badge: "Heavy Duty",
-    title: "Conveyor Support Structures",
-    description:
-      "Engineered structural support frames, bents, and elevated frameworks built for continuous high-load industrial material transfer lines.",
-    specs: [
-      { label: "Applications", value: "Belt, Roller & Slat Conveyors" },
-      { label: "Standards", value: "IS 800 / AISC 360 Structural Code" },
-      { label: "Finishes", value: "Sa 2.5 Shot Blasting + Epoxy / HDG" },
-    ],
-    image: "/capabilites/cnc-machining.png",
-  },
-  {
-    id: "overhead-conveyor-systems",
-    category: "conveyor",
-    badge: "Overhead Systems",
-    title: "Overhead Conveyor Systems",
-    description:
-      "Specialized suspension structures, monorails, and power & free track systems engineered for automated assembly and continuous material handling.",
-    specs: [
-      { label: "Systems", value: "Monorails & Power & Free Tracks" },
-      { label: "Mounting", value: "Roof-Truss / Floor-Supported Gantries" },
-      { label: "Tolerances", value: "Precision Laser Track Alignment" },
-    ],
-    image: "/capabilites/laser-cutting.png",
-  },
-  {
-    id: "assembly-line-structures",
-    category: "assembly",
-    badge: "Plant Automation",
-    title: "Assembly Line Structures",
-    description:
-      "Modular production line frames, ergonomic operator workstations, conveyor integration skids, and automated line-side staging structures.",
-    specs: [
-      { label: "Design", value: "Modular & Ergonomic Integration" },
-      { label: "Features", value: "Integrated Tooling & Wiring Runs" },
-      { label: "Material", value: "Heavy Industrial Hollow Sections" },
-    ],
-    image: "/capabilites/cnc-machining.png",
-  },
-  {
-    id: "industrial-platform-walkways",
-    category: "platform",
-    badge: "Safety Standard",
-    title: "Industrial Platform & Walkways",
-    description:
-      "Heavy-duty industrial mezzanines, inspection walkways, access stair towers, and OSHA-compliant safety handrails with anti-slip grating.",
-    specs: [
-      { label: "Compliance", value: "OSHA & IS Safety Standards" },
-      { label: "Flooring", value: "Serrated Anti-Slip Grating" },
-      { label: "Assembly", value: "Modular Bolted / Welded Systems" },
-    ],
-    image: "/capabilites/laser-cutting.png",
-  },
-  {
-    id: "custom-heavy-fabrication",
-    category: "fabrication",
-    badge: "Bespoke Heavy",
-    title: "Custom Heavy Fabrication",
-    description:
-      "Large-tonnage machine frames, industrial skids, gantry structures, and bespoke heavy steel fabrications engineered to client 3D CAD blueprints.",
-    specs: [
-      { label: "Capacity", value: "Up to 20 Ton Single Assemblies" },
-      { label: "Welding", value: "AWS D1.1 Certified GMAW / SAW" },
-      { label: "Testing", value: "100% Ultrasonic & MPI Tested" },
-    ],
-    image: "/capabilites/cnc-machining.png",
-  },
-];
 
 // ---------- Service Card ----------
 // Each card watches its own viewport entry, so on a grid/stack layout every
@@ -252,7 +165,7 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
 
         {/* Badge */}
-        <span
+        {/* <span
           className="
             absolute
             left-4
@@ -269,7 +182,7 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
           "
         >
           {service.badge}
-        </span>
+        </span> */}
       </div>
 
       {/* Content — 55% — text rises bottom to top as this card enters the viewport */}
@@ -343,7 +256,27 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
           `}
           style={{ transitionDelay: `${index * 90 + 300}ms` }}
         >
-          <a
+          <Link
+            href={`/our-expertise/${service.id}`}
+            className="
+              flex-1
+              rounded-md
+              border
+              border-[#00355F]
+              px-3
+              py-2.5
+              text-center
+              text-[12.5px]
+              font-semibold
+              text-[#00355F]
+              transition-colors
+              hover:bg-[#00355F]
+              hover:text-white
+            "
+          >
+            Learn More
+          </Link>
+          <Link
             href="/contact"
             className="
               flex-1
@@ -360,7 +293,7 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
             "
           >
             Enquire Now
-          </a>
+          </Link>
         </div>
       </div>
     </article>
@@ -623,7 +556,7 @@ export default function ServicesSection() {
 
             <h2 className="max-w-2xl text-3xl font-bold leading-[1.15] tracking-[-0.03em] text-slate-900 sm:text-4xl lg:text-[44px]">
               <AnimatedReveal
-                text="Services"
+                text="Our Expertise"
                 inView={headerInView}
                 splitBy="char"
                 baseDelay={20}

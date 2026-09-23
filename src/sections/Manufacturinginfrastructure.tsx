@@ -35,7 +35,7 @@ const CAPABILITIES: Capability[] = [
       "Expansive industrial facility equipped with heavy-tonnage overhead EOT cranes and extensive floor area capable of executing simultaneous large-scale plant projects and heavy structural runs.",
     statLabel: "Capacity Rating:",
     statValue: "High-Volume Structural Plant",
-    image: "/capabilites/cnc-machining.png",
+    image: "/infrastructure/industrial-plant.webp",
     icon: Factory,
   },
   {
@@ -45,7 +45,7 @@ const CAPABILITIES: Capability[] = [
       "State-of-the-art multi-axis CNC machining, high-capacity fiber laser cutting beds, synchronized CNC hydraulic press brakes, and automated submerged arc welding stations.",
     statLabel: "Machinery Setup:",
     statValue: "CNC & High-Wattage Fiber Laser",
-    image: "/capabilites/laser-cutting.png",
+    image: "/infrastructure/heavy-fabrication.webp",
     icon: Cpu,
   },
   {
@@ -55,7 +55,7 @@ const CAPABILITIES: Capability[] = [
       "Seasoned structural engineers, AWS-certified welders, skilled CNC programmers, and dedicated on-site erection specialists committed to zero-defect manufacturing standards.",
     statLabel: "Workforce Team:",
     statValue: "Certified Technical Specialists",
-    image: "/capabilites/cnc-machining.png",
+    image: "/infrastructure/experienced-workforce.webp",
     icon: HardHat,
   },
 ];

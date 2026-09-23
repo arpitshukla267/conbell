@@ -273,7 +273,7 @@ export default function AboutPage() {
           {/* Single image — stretches to match the content column's height */}
           <Reveal className="relative min-h-[280px] w-full overflow-hidden rounded-2xl bg-gray-200 lg:h-full lg:min-h-0">
             <Image
-              src="/about/facility-unit-1.jpg"
+              src="/story.png"
               alt="Conbell Engineering Manufacturing Facility"
               fill
               className="object-cover"
@@ -289,7 +289,7 @@ export default function AboutPage() {
           {/* Content — vertically centered so it visually fills the
               same height as the image */}
           <Reveal delay={0.1} className="flex flex-col justify-center">
-            <p className="text-[12px] font-semibold tracking-wider text-[#5B5E67]">
+            <p className="text-sm font-semibold tracking-wider text-[#5B5E67]">
               OUR STORY
             </p>
             <AnimatedHeading
@@ -297,20 +297,22 @@ export default function AboutPage() {
               text="Engineering Solutions Built on Precision and Trust"
               className={`font-sans max-w-md mt-1 text-2xl font-extrabold leading-snug ${HEADING_COLOR} sm:text-3xl`}
             />
-            <p className="mt-4 text-md leading-relaxed text-[#5B5E67]">
-              At Conbell Engineering, we are committed to delivering
-              high-quality engineering, fabrication, and industrial solutions
-              that consistently meet customer requirements, statutory
-              obligations, and applicable standards. Every project we undertake
-              reflects our discipline in process, our respect for our people,
-              and our accountability to the clients who trust us with their most
-              demanding industrial challenges. At Conbell Engineering, we are
-              committed to delivering high-quality engineering, fabrication, and
-              industrial solutions that consistently meet customer requirements,
-              statutory obligations, and applicable standards. Every project we
-              undertake reflects our discipline in process, our respect for our
-              people, and our accountability to the clients who trust us with
-              their most demanding industrial challenges.
+            <p className="mt-4 text-[18px] leading-relaxed text-[#5B5E67]">
+              At Conbell Engineering, we believe quality engineering is about
+              creating solutions that businesses can rely on. With expertise in
+              engineering, fabrication, and industrial solutions, we combine
+              technical knowledge, skilled workmanship, and disciplined
+              processes to meet the evolving needs of our customers. Every
+              project is approached with a focus on precision, reliability,
+              safety, and applicable industry standards. From customized
+              fabrication to complex industrial requirements, we work closely
+              with our clients to understand their challenges and deliver
+              practical, dependable solutions. Our commitment goes beyond
+              project delivery. We believe in building long-term relationships
+              through consistent quality, transparency, accountability, and
+              continuous improvement. Today, Conbell Engineering continues to
+              grow with one clear focus — engineering with precision, delivering
+              with responsibility, and earning trust through every project.
             </p>
           </Reveal>
         </div>

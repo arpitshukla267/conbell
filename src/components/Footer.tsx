@@ -10,6 +10,7 @@ import {
   Phone,
   Mail,
   ArrowUp,
+  ShieldCheck,
 } from "lucide-react";
 
 const manrope = Manrope({
@@ -29,8 +30,13 @@ const QUICK_LINKS = [
   { label: "About Us", href: "/about" },
   { label: "Products & Capabilities", href: "/products" },
   { label: "Our Presence", href: "/our-presence" },
-  { label: "Client", href: "/client" },
   { label: "Contact Us", href: "/contact" },
+];
+
+const POLICY_LINKS = [
+  { label: "Safety & Health Policy", href: "/safety-policy" },
+  { label: "Terms & Conditions", href: "/terms-and-conditions" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
 ];
 
 export default function Footer() {
@@ -68,25 +74,35 @@ export default function Footer() {
               CONBELL ENGINEERING
             </h2>
             <p className="mt-4 font-[family-name:var(--font-inter)] text-sm leading-relaxed text-[#AEB7C7]">
-              A trusted engineering partner delivering precision fabrication
-              and industrial solutions across automotive, defense, power, and
+              A trusted engineering partner delivering precision fabrication and
+              industrial solutions across automotive, defense, power, and
               infrastructure sectors.
             </p>
-            <Link
-              href="/about"
-              className="mt-4 inline-flex items-center gap-1.5 font-[family-name:var(--font-inter)] text-xs font-bold tracking-wide text-white transition-colors hover:text-[#7FB2E5]"
-            >
-              VIEW MORE
-              <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-1.5 font-[family-name:var(--font-inter)] text-xs font-bold tracking-wide text-white transition-colors hover:text-[#7FB2E5]"
+              >
+                VIEW MORE
+                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+              <span className="text-white/20">•</span>
+              <Link
+                href="/safety-policy"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#0F4C81] px-3.5 py-2 font-[family-name:var(--font-manrope)] text-xs font-bold tracking-wide text-white shadow-sm transition-all hover:bg-[#1560a1] hover:shadow-md"
+              >
+                <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                SAFETY &amp; HEALTH POLICY
+              </Link>
+            </div>
           </div>
 
-          {/* Quick links */}
+          {/* Quick links & Policies */}
           <div>
             <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-white">
               QUICK LINKS
             </h3>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-4 space-y-2">
               {QUICK_LINKS.map((link) => (
                 <li key={link.label}>
                   <Link
@@ -98,6 +114,26 @@ export default function Footer() {
                       aria-hidden="true"
                     />
                     {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <h4 className="mt-6 font-[family-name:var(--font-manrope)] text-xs font-bold uppercase tracking-wider text-slate-400">
+              POLICIES &amp; COMPLIANCE
+            </h4>
+            <ul className="mt-2.5 space-y-1.5">
+              {POLICY_LINKS.map((policy) => (
+                <li key={policy.label}>
+                  <Link
+                    href={policy.href}
+                    className="flex items-center gap-1.5 font-[family-name:var(--font-inter)] text-xs text-[#AEB7C7] transition-colors hover:text-white"
+                  >
+                    <ChevronRight
+                      className="h-3 w-3 flex-shrink-0 text-[#0F4C81]"
+                      aria-hidden="true"
+                    />
+                    {policy.label}
                   </Link>
                 </li>
               ))}
@@ -147,16 +183,60 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+          <div className="flex flex-nowrap items-center justify-center gap-4 text-xs font-medium text-[#AEB7C7]">
+            <Link
+              href="/safety-policy"
+              className="transition-colors hover:text-white"
+            >
+              Safety &amp; Health Policy
+            </Link>
+            <span className="text-white/20">•</span>
+            <Link
+              href="/terms-and-conditions"
+              className="transition-colors hover:text-white"
+            >
+              Terms &amp; Conditions
+            </Link>
+            <span className="text-white/20">•</span>
+            <Link
+              href="/privacy-policy"
+              className="transition-colors hover:text-white"
+            >
+              Privacy Policy
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Bottom bar */}
       <div className="relative border-t border-white/10">
-        <div className="mx-auto flex max-w-[95%] flex-col items-center gap-2 px-6 py-5 text-center md:px-10 lg:px-16">
-          <p className="font-[family-name:var(--font-inter)] text-sm text-[#AEB7C7]">
-            Copyright © ConBell Engineering Pvt Ltd 2024–2025. All Rights
-            Reserved.
+        <div className="mx-auto flex max-w-[95%] flex-col items-center justify-between gap-4 px-6 py-5 text-center md:flex-row md:px-10 lg:px-16">
+          <p className="font-[family-name:var(--font-inter)] text-xs text-[#AEB7C7] sm:text-sm">
+            Copyright © ConBell Engineering Pvt Ltd 2026-27
           </p>
+
+          <div className="hidden md:block flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-[#AEB7C7]">
+            <Link
+              href="/safety-policy"
+              className="transition-colors hover:text-white"
+            >
+              Safety &amp; Health Policy
+            </Link>
+            <span className="text-white/20">•</span>
+            <Link
+              href="/terms-and-conditions"
+              className="transition-colors hover:text-white"
+            >
+              Terms &amp; Conditions
+            </Link>
+            <span className="text-white/20">•</span>
+            <Link
+              href="/privacy-policy"
+              className="transition-colors hover:text-white"
+            >
+              Privacy Policy
+            </Link>
+          </div>
         </div>
 
         <button

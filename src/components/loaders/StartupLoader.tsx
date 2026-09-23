@@ -1,40 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState, useLayoutEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-const SPLASH_DURATION_MS = 5000;
-
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+const SPLASH_DURATION_MS = 6000;
 
 interface StartupLoaderProps {
   onAnimationDone?: () => void;
 }
 
-export default function StartupLoader({
-  onAnimationDone,
-}: StartupLoaderProps) {
+export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
   const pathname = usePathname();
-  const [showSplash, setShowSplash] = useState(true);
-  const decided = useRef(false);
 
-  // Only show on home page hard-refresh / first load.
-  // No sessionStorage — every hard refresh re-triggers the animation.
-  useIsomorphicLayoutEffect(() => {
-    if (decided.current) return;
-    decided.current = true;
+  // Lazy init: sirf ek baar mount ke time decide hota hai.
+  // Agar pathname "/" nahi hai, toh showSplash kabhi true hi nahi hoga —
+  // na server render mein, na client mein. Isse flash/flicker bhi nahi hoga.
+  const [showSplash, setShowSplash] = useState(() => pathname === "/");
 
-    if (pathname !== "/") {
-      setShowSplash(false);
-      onAnimationDone?.();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Timers: lock scroll, auto-dismiss after duration.
   useEffect(() => {
-    if (!showSplash) return;
+    if (!showSplash) {
+      onAnimationDone?.();
+      return;
+    }
 
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
@@ -64,7 +51,6 @@ export default function StartupLoader({
         className="masked h-screen w-full fixed top-0 left-0 z-[9999]"
         aria-hidden="true"
       />
-
       <style>{`
         /* ═══════════════════════════════════════════
            BASE STYLES
@@ -93,13 +79,14 @@ export default function StartupLoader({
 
         /* ═══════════════════════════════════════════
            DESKTOP — 8 strips  (≥ 768px)
+           Timeline (6s total): 2.5s open → 1s hold (all open) → 2.5s close
            ═══════════════════════════════════════════ */
         @media (min-width: 768px) {
           .masked {
             background-size: 100% 100%;
             /* +1px prevents subpixel rounding gaps between strips */
             --strip-w: calc(100% / 8 + 1px);
-            --strip-h: 50%;
+            --strip-h: 60%;
           }
 
           .masked::before {
@@ -125,23 +112,23 @@ export default function StartupLoader({
               linear-gradient(white, white);
 
             -webkit-mask-position:
-              0% 15%,
-              calc(100% / 7 * 1) 25%,
-              calc(100% / 7 * 2) 30%,
-              calc(100% / 7 * 3) 50%,
-              calc(100% / 7 * 4) 45%,
-              calc(100% / 7 * 5) 35%,
-              calc(100% / 7 * 6) 25%,
-              100% 20%,
+              0% 25%,
+              calc(100% / 7 * 1) 50%,
+              calc(100% / 7 * 2) 22%,
+              calc(100% / 7 * 3) 48%,
+              calc(100% / 7 * 4) 30%,
+              calc(100% / 7 * 5) 52%,
+              calc(100% / 7 * 6) 24%,
+              100% 45%,
               0 0;
             mask-position:
-              0% 55%,
-              calc(100% / 7 * 1) 30%,
-              calc(100% / 7 * 2) 50%,
-              calc(100% / 7 * 3) 40%,
-              calc(100% / 7 * 4) 45%,
-              calc(100% / 7 * 5) 35%,
-              calc(100% / 7 * 6) 25%,
+              0% 25%,
+              calc(100% / 7 * 1) 50%,
+              calc(100% / 7 * 2) 22%,
+              calc(100% / 7 * 3) 48%,
+              calc(100% / 7 * 4) 30%,
+              calc(100% / 7 * 5) 52%,
+              calc(100% / 7 * 6) 24%,
               100% 45%,
               0 0;
 
@@ -156,7 +143,7 @@ export default function StartupLoader({
               var(--strip-w) 0%, var(--strip-w) 0%,
               100% 100%;
 
-            animation: revealDesktop 5s ease-out forwards;
+            animation: revealDesktop 6s ease-out forwards;
           }
         }
 
@@ -173,7 +160,7 @@ export default function StartupLoader({
               var(--strip-w) 0%, var(--strip-w) 0%,
               100% 100%;
           }
-          12.5% {
+          10.4167% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) 0%,
               var(--strip-w) 0%, var(--strip-w) 0%,
@@ -187,7 +174,7 @@ export default function StartupLoader({
               var(--strip-w) 0%, var(--strip-w) var(--strip-h),
               100% 100%;
           }
-          25% {
+          20.8333% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               var(--strip-w) 0%, var(--strip-w) 0%,
@@ -201,35 +188,7 @@ export default function StartupLoader({
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               100% 100%;
           }
-          37.5% {
-            -webkit-mask-size:
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) 0%,
-              var(--strip-w) 0%, var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              100% 100%;
-            mask-size:
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) 0%,
-              var(--strip-w) 0%, var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              100% 100%;
-          }
-          50% {
-            -webkit-mask-size:
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              100% 100%;
-            mask-size:
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
-              100% 100%;
-          }
-          62.5% {
+          31.25% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               var(--strip-w) var(--strip-h), var(--strip-w) 0%,
@@ -243,7 +202,52 @@ export default function StartupLoader({
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               100% 100%;
           }
-          75% {
+          /* ── all 8 strips fully open ── */
+          41.6667% {
+            -webkit-mask-size:
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              100% 100%;
+            mask-size:
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              100% 100%;
+          }
+          /* ── hold: same as above, 1s pause (41.6667% → 58.3333% of 6s) ── */
+          54.3333% {
+            -webkit-mask-size:
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              100% 100%;
+            mask-size:
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              100% 100%;
+          }
+          /* ── shrink begins ── */
+          68.75% {
+            -webkit-mask-size:
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) 0%,
+              var(--strip-w) 0%, var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              100% 100%;
+            mask-size:
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) 0%,
+              var(--strip-w) 0%, var(--strip-w) var(--strip-h),
+              var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
+              100% 100%;
+          }
+          79.1667% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               var(--strip-w) 0%, var(--strip-w) 0%,
@@ -257,7 +261,7 @@ export default function StartupLoader({
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               100% 100%;
           }
-          87.5% {
+          89.5833% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) 0%,
               var(--strip-w) 0%, var(--strip-w) 0%,
@@ -287,6 +291,7 @@ export default function StartupLoader({
 
         /* ═══════════════════════════════════════════
            MOBILE — 4 strips  (< 768px)
+           Timeline mirrors desktop's 6s (open → 1s hold → close)
            ═══════════════════════════════════════════ */
         @media (max-width: 767px) {
           .masked {
@@ -295,7 +300,7 @@ export default function StartupLoader({
             /* 2. Exactly 0.5px border/overlap between strips in mobile (was 1.5px) */
             --strip-w: calc(100% / 4 + 0.5px);
             /* 3. TO CHANGE MOBILE STRIP HEIGHT: adjust this percentage (e.g. 40%, 45%, 50%) */
-            --strip-h: 50%;
+            --strip-h: 65%;
           }
 
           .masked::before {
@@ -336,7 +341,7 @@ export default function StartupLoader({
               var(--strip-w) 0%, var(--strip-w) 0%,
               100% 100%;
 
-            animation: revealMobile 5s ease-out forwards;
+            animation: revealMobile 6s ease-out forwards;
           }
         }
 
@@ -353,7 +358,7 @@ export default function StartupLoader({
               100% 100%;
           }
           /* strips 1 & 4 open */
-          16.66% {
+          13.3333% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) 0%,
               var(--strip-w) 0%, var(--strip-w) var(--strip-h),
@@ -364,7 +369,7 @@ export default function StartupLoader({
               100% 100%;
           }
           /* all 4 open */
-          33.33% {
+          26.6667% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
@@ -374,8 +379,8 @@ export default function StartupLoader({
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               100% 100%;
           }
-          /* hold open */
-          50% {
+          /* hold: 1s pause with all strips open (26.6667% → 43.3333% of 6s) */
+          43.3333% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),

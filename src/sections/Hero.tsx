@@ -21,7 +21,7 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: 1,
-    image: "/hero/hero1.png",
+    image: "/hero/hero1.webp",
     heading: "Precision Metal Manufacturing.",
     accentHeading: "Engineered for Industrial Excellence.",
     subtext:
@@ -29,7 +29,7 @@ const slides: Slide[] = [
   },
   {
     id: 2,
-    image: "/hero/hero1.png",
+    image: "/hero/hero2.webp",
     heading: "Certified Quality Systems.",
     accentHeading: "ISO-Compliant From Start to Finish.",
     subtext:
@@ -37,7 +37,7 @@ const slides: Slide[] = [
   },
   {
     id: 3,
-    image: "/hero/hero1.png",
+    image: "/hero/hero1.webp",
     heading: "Turnkey Project Deployment.",
     accentHeading: "From Blueprint to Installed Structure.",
     subtext:
@@ -45,7 +45,7 @@ const slides: Slide[] = [
   },
   {
     id: 4,
-    image: "/hero/hero1.png",
+    image: "/hero/hero2.webp",
     heading: "Trusted by Industry Leaders.",
     accentHeading: "Decades of Fabrication Expertise.",
     subtext:
@@ -53,7 +53,7 @@ const slides: Slide[] = [
   },
 ];
 
-const AUTOPLAY_MS = 5000;
+const AUTOPLAY_MS = 3000;
 
 // Set this to your actual navbar height (in px). If your navbar height
 // differs between mobile and desktop, expose it as a CSS variable
@@ -101,19 +101,34 @@ export default function Hero() {
         height: `calc(98vh - var(--navbar-height, ${NAVBAR_HEIGHT_PX}px))`,
         minHeight: "420px",
       }}
-      onMouseEnter={stopAutoplay}
-      onMouseLeave={startAutoplay}
       aria-roledescription="carousel"
       aria-label="Company introduction slides"
     >
-      {/* Slides */}
-      <div className="absolute inset-0 h-full w-full">
+      {/* Progress bar keyframes */}
+      <style jsx global>{`
+        @keyframes heroProgressFill {
+          from {
+            transform: scaleX(0);
+          }
+          to {
+            transform: scaleX(1);
+          }
+        }
+      `}</style>
+
+      {/* Sliding track */}
+      <div
+        className="absolute inset-0 flex h-full transition-transform duration-[900ms] ease-in-out"
+        style={{
+          width: `${slides.length * 100}%`,
+          transform: `translateX(-${current * (100 / slides.length)}%)`,
+        }}
+      >
         {slides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`absolute inset-0 h-full w-full transition-opacity duration-[1200ms] ease-in-out ${
-              index === current ? "opacity-100" : "opacity-0"
-            }`}
+            className="relative h-full flex-shrink-0"
+            style={{ width: `${100 / slides.length}%` }}
           >
             <Image
               src={slide.image}
@@ -122,65 +137,11 @@ export default function Hero() {
               priority={index === 0}
               className="object-cover"
             />
-
-            {/* Content */}
-            {/* <div className="relative z-10 mx-auto flex h-full max-w-[1280px] flex-col justify-center px-6 max-md:justify-start max-md:px-6 max-md:pb-24 max-md:pt-16 md:px-12">
-              <h1 className="max-w-[820px] text-[28px] font-semibold leading-[1.15] tracking-tight text-white sm:text-4xl lg:text-[48px]">
-                {slide.heading}
-                <span className="block text-[#9cc4f5]">
-                  {slide.accentHeading}
-                </span>
-              </h1>
-
-              <p className="mt-5 max-w-[560px] text-sm font-semibold leading-relaxed text-[#d7dfe8] sm:text-base">
-                {slide.subtext}
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-4 max-md:flex-col max-md:items-stretch">
-                <a
-                  href="#"
-                  className="inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded-md bg-[#2f6fed] px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#2a5fd1] active:translate-y-px"
-                >
-                  Explore Products &amp; Capabilities
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 flex-shrink-0"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </a>
-
-                <a
-                  href="#"
-                  className="inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded-md border border-white/35 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-[2px] transition-colors hover:bg-white/20 active:translate-y-px"
-                >
-                  Send Technical RFQ
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 flex-shrink-0"
-                  >
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                  </svg>
-                </a>
-              </div>
-            </div> */}
           </div>
         ))}
       </div>
 
-      {/* Dots — centered on the X axis */}
+      {/* Dots / progress bars — centered on the X axis */}
       <div
         className="absolute bottom-7 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 max-md:bottom-[18px]"
         role="tablist"
@@ -193,10 +154,20 @@ export default function Hero() {
             aria-label={`Go to slide ${index + 1}`}
             aria-selected={index === current}
             onClick={() => handleDotClick(index)}
-            className={`h-2 rounded-full transition-all duration-300 ease-in-out ${
-              index === current ? "w-7 bg-white" : "w-2 bg-white/40"
+            className={`relative h-2 overflow-hidden rounded-full bg-white/40 transition-[width] duration-300 ease-in-out ${
+              index === current ? "w-10" : "w-2"
             }`}
-          />
+          >
+            {index === current && (
+              <span
+                key={current}
+                className="absolute inset-0 origin-left rounded-full bg-white"
+                style={{
+                  animation: `heroProgressFill ${AUTOPLAY_MS}ms linear forwards`,
+                }}
+              />
+            )}
+          </button>
         ))}
       </div>
     </section>

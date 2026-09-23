@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -12,13 +12,16 @@ import {
   MessageCircle,
   Menu,
   X,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
+import { SERVICES } from "../data/services";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
   { label: "Products", href: "/products" },
-  { label: "Our Presence", href: "/our-presence" },
+  { label: "Our Expertise", href: "/our-expertise" },
   { label: "Client", href: "/client" },
   { label: "Contact Us", href: "/contact" },
 ];
@@ -53,6 +56,29 @@ function NavbarContent({
   scrolled: boolean;
 }) {
   const pathname = usePathname();
+  const [presenceDropdownOpen, setPresenceDropdownOpen] = useState(false);
+  const [mobilePresenceOpen, setMobilePresenceOpen] = useState(false);
+  const dropdownRef = useRef<HTMLLIElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setPresenceDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close dropdowns on route changes
+  useEffect(() => {
+    setPresenceDropdownOpen(false);
+    setMobilePresenceOpen(false);
+  }, [pathname]);
 
   return (
     <>
@@ -93,7 +119,7 @@ function NavbarContent({
         className={`border-b backdrop-blur-sm transition-all duration-300 ease-out ${
           scrolled
             ? "border-gray-200 bg-white shadow-md"
-            : "border-transparent bg-transparent"
+            : "border-transparent bg-black"
         }`}
       >
         <div
@@ -118,7 +144,99 @@ function NavbarContent({
           {/* Desktop links */}
           <ul className="hidden items-center gap-7 xl:flex">
             {NAV_LINKS.map((link) => {
+              const isPresence = link.label === "Our Expertise";
               const active = isActivePath(pathname, link.href);
+
+              if (isPresence) {
+                return (
+                  <li
+                    key={link.href}
+                    ref={dropdownRef}
+                    className="relative"
+                    onMouseEnter={() => setPresenceDropdownOpen(true)}
+                    onMouseLeave={() => setPresenceDropdownOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setPresenceDropdownOpen((prev) => !prev)}
+                      aria-expanded={presenceDropdownOpen}
+                      className={`relative flex items-center gap-1 pb-0 hover:pb-1 text-[15px] font-medium transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:transition-all after:duration-300 ${
+                        scrolled
+                          ? active
+                            ? "text-[#00355F] after:w-full after:bg-[#00355F]"
+                            : "text-gray-600 after:w-0 hover:text-[#00355F] hover:after:w-full hover:after:bg-[#00355F]"
+                          : active
+                            ? "text-white pb-1 after:w-full after:bg-white"
+                            : "text-[#c6cbd2] after:w-0 hover:text-white hover:after:w-full hover:after:bg-white"
+                      }`}
+                    >
+                      <span>{link.label}</span>
+                      <ChevronDown
+                        size={14}
+                        className={`transition-transform duration-200 ${
+                          presenceDropdownOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    <div
+                      className={`absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-all duration-200 ease-out ${
+                        presenceDropdownOpen
+                          ? "pointer-events-auto visible translate-y-0 opacity-100"
+                          : "pointer-events-none invisible -translate-y-2 opacity-0"
+                      }`}
+                      style={{ width: "380px" }}
+                    >
+                      <div className="overflow-hidden rounded-2xl border border-blue-100 bg-white p-2.5 shadow-[0_12px_40px_rgba(0,35,95,0.15)] ring-1 ring-black/5">
+                        <div className="mt-1.5 space-y-1">
+                          {SERVICES.map((service) => (
+                            <Link
+                              key={service.id}
+                              href={`/our-expertise/${service.id}`}
+                              onClick={() => setPresenceDropdownOpen(false)}
+                              className="group flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-[#EFF4FF]"
+                            >
+                              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+                                <Image
+                                  src={service.image}
+                                  alt={service.title}
+                                  fill
+                                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center justify-between">
+                                  <p className="truncate text-[13px] font-semibold text-slate-800 transition-colors group-hover:text-[#00355F]">
+                                    {service.title}
+                                  </p>
+                                  <ChevronRight
+                                    size={14}
+                                    className="shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-[#00355F]"
+                                  />
+                                </div>
+                                <p className="truncate text-[11px] text-slate-500">
+                                  {service.badge} • {service.specs[0]?.value}
+                                </p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                        <div className="mt-1.5 border-t border-gray-100 px-2 pt-1.5">
+                          <Link
+                            href="/our-expertise"
+                            onClick={() => setPresenceDropdownOpen(false)}
+                            className="block py-1 text-center text-[12px] font-semibold text-[#00355F] transition-colors hover:underline"
+                          >
+                            Explore All Services Overview &rarr;
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                );
+              }
+
               return (
                 <li key={link.href}>
                   <Link
@@ -191,13 +309,78 @@ function NavbarContent({
         <div
           className={`absolute left-0 right-0 top-full overflow-hidden border-b border-gray-200 bg-white shadow-lg transition-all duration-300 ease-out xl:hidden ${
             menuOpen
-              ? "max-h-[80vh] translate-y-0 opacity-100"
+              ? "max-h-[85vh] translate-y-0 opacity-100 overflow-y-auto"
               : "max-h-0 -translate-y-4 opacity-0"
           }`}
         >
           <ul className="px-6 pb-2 pt-2">
             {NAV_LINKS.map((link) => {
+              const isPresence = link.label === "Our Expertise";
               const active = isActivePath(pathname, link.href);
+
+              if (isPresence) {
+                return (
+                  <li key={link.href} className="border-b border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => setMobilePresenceOpen((prev) => !prev)}
+                      className={`flex w-full items-center justify-between py-3.5 text-[16px] transition-colors duration-200 ${
+                        active
+                          ? "font-bold text-[#0e2a4a]"
+                          : "font-medium text-gray-800"
+                      }`}
+                    >
+                      <span>{link.label}</span>
+                      <ChevronDown
+                        size={18}
+                        className={`transition-transform duration-200 ${
+                          mobilePresenceOpen
+                            ? "rotate-180 text-[#00355F]"
+                            : "text-gray-400"
+                        }`}
+                      />
+                    </button>
+
+                    {/* Collapsible Mobile Services List */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        mobilePresenceOpen
+                          ? "max-h-[500px] pb-3 opacity-100"
+                          : "max-h-0 opacity-0"
+                      }`}
+                    >
+                      <div className="space-y-1.5 pl-2 pr-1">
+                        {SERVICES.map((service) => (
+                          <Link
+                            key={service.id}
+                            href={`/our-presence/${service.id}`}
+                            onClick={() => setMenuOpen(() => false)}
+                            className="flex items-center gap-3 rounded-lg p-2 text-[14px] text-gray-700 transition-colors hover:bg-[#EFF4FF] hover:text-[#00355F]"
+                          >
+                            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-100">
+                              <Image
+                                src={service.image}
+                                alt={service.title}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="block truncate font-medium text-slate-800">
+                                {service.title}
+                              </span>
+                              <span className="block truncate text-[11px] text-slate-500">
+                                {service.badge}
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </li>
+                );
+              }
+
               return (
                 <li key={link.href} className="border-b border-gray-100">
                   <Link
