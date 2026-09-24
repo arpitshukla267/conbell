@@ -80,6 +80,25 @@ export default function ServiceShowcase({
               {service.title}
             </motion.h1>
 
+            <motion.div
+              variants={imageVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.25 }}
+              className="md:hidden my-6 relative lg:col-span-6"
+            >
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100">
+                <Image
+                  src={service.image}
+                  alt={service.title}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 95vw, (max-width: 1200px) 50vw, 600px"
+                  className="object-cover"
+                />
+              </div>
+            </motion.div>
+
             <motion.p
               variants={itemVariants}
               className="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg"
@@ -140,7 +159,7 @@ export default function ServiceShowcase({
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.25 }}
-            className="relative lg:col-span-6"
+            className="hidden md:block relative lg:col-span-6"
           >
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100">
               <Image

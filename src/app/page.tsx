@@ -4,11 +4,11 @@ import ServicesSection from "../sections/ServicesSection";
 import ProcessSection from "../sections/ProcessSection";
 import CoreStrengthsSection from "../sections/CoreStrengthsSection";
 import ManufacturingInfrastructure from "../sections/Manufacturinginfrastructure";
-import FeaturedProjects from "../sections/Featuredprojects";
-import Application from "../sections/Application";
+import IndustriesWeServe from "../sections/Industriesweserve";
 import QualityStandards from "../sections/Qualitystandards";
 import ClientsCarousel from "../sections/Clientscarousel";
 import FAQSection from "../sections/Faqsection";
+import ProductsSection from "../sections/Products";
 
 export default function Home() {
   return (
@@ -17,11 +17,11 @@ export default function Home() {
       <Aboutsection />
       <ServicesSection />
       <ProcessSection />
+      <ProductsSection />
       <CoreStrengthsSection />
       <ClientsCarousel />
+      <IndustriesWeServe />
       <ManufacturingInfrastructure />
-      <Application />
-      <FeaturedProjects />
       <QualityStandards />
       <FAQSection />
     </div>

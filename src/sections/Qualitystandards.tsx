@@ -99,7 +99,7 @@ export default function QualityStandards() {
     useInView<HTMLDivElement>();
 
   return (
-    <section className={`${inter.className} bg-[#F8F9FF] px-4 md:px-6 py-16`}>
+    <section className={`${inter.className} bg-[#F8F9FF] px-2 md:px-6 py-16`}>
       <div className="mx-auto max-w-[95vw] rounded-xl bg-white p-6 sm:p-10">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[0.85fr_1.15fr]">
           {/* Left column */}
@@ -150,7 +150,7 @@ export default function QualityStandards() {
             {STANDARDS.map((item, index) => (
               <div
                 key={item.title}
-                className={`rounded-lg bg-[#EFF4FF] p-5 transition-all duration-700 ease-out ${
+                className={`rounded-lg bg-[#EFF4FF] px-2 py-3 md:p-5 transition-all duration-700 ease-out ${
                   rightVisible
                     ? "translate-y-0 opacity-100"
                     : "translate-y-6 opacity-0"

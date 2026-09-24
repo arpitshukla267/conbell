@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 import {
@@ -18,7 +17,6 @@ import {
   Target,
   User,
   CheckCircle2,
-  ArrowUpRight,
 } from "lucide-react";
 
 // Single source of truth for the heading blue used across every
@@ -219,13 +217,22 @@ const CORE_VALUES = [
   },
 ];
 
-// Leadership fields are intentionally left as placeholders — designation,
-// photo, and message to be provided by the client. No details invented.
+// Leadership: two Directors. Photos live in /public/founder.
 const FOUNDERS = [
-  { name: "Nirav Patel", designation: "", image: "", message: "" },
-  { name: "Dipika Patel", designation: "", image: "", message: "" },
-  { name: "Bhavina Patel", designation: "", image: "", message: "" },
-  { name: "Heena Patel", designation: "", image: "", message: "" },
+  {
+    name: "Jashavantlal R Patel",
+    designation: "Director",
+    image: "/founder/jashavantlal.jpeg",
+    message:
+      "With decades of hands-on experience in engineering and fabrication, I've been driven by one belief — quality and reliability are never negotiable. Every project we take on carries that same standard.",
+  },
+  {
+    name: "Niravkumar Patel",
+    designation: "Director",
+    image: "/founder/niravkumar.jpeg",
+    message:
+      "I focus on precision, innovation, and customer satisfaction in everything we build. My goal is to keep strengthening client relationships and growing Conbell through technology and process excellence.",
+  },
 ];
 
 export default function AboutPage() {
@@ -271,7 +278,7 @@ export default function AboutPage() {
       <section className="bg-[#F8F9FF] px-6 py-16">
         <div className="mx-auto grid max-w-[95%] grid-cols-1 gap-10 lg:grid-cols-2 lg:items-stretch">
           {/* Single image — stretches to match the content column's height */}
-          <Reveal className="relative min-h-[280px] w-full overflow-hidden rounded-2xl bg-gray-200 lg:h-full lg:min-h-0">
+          <Reveal className="hidden md:block relative min-h-[280px] w-full overflow-hidden rounded-2xl bg-gray-200 lg:h-full lg:min-h-0">
             <Image
               src="/story.png"
               alt="Conbell Engineering Manufacturing Facility"
@@ -297,7 +304,23 @@ export default function AboutPage() {
               text="Engineering Solutions Built on Precision and Trust"
               className={`font-sans max-w-md mt-1 text-2xl font-extrabold leading-snug ${HEADING_COLOR} sm:text-3xl`}
             />
-            <p className="mt-4 text-[18px] leading-relaxed text-[#5B5E67]">
+
+            <Reveal className="md:hidden my-4 relative min-h-[280px] w-full overflow-hidden rounded-2xl bg-gray-200 lg:h-full lg:min-h-0">
+              <Image
+                src="/story.png"
+                alt="Conbell Engineering Manufacturing Facility"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between bg-black/60 px-4 py-2.5 text-white">
+                <span className="flex items-center gap-2 text-[13px] font-semibold">
+                  <Factory size={14} />
+                  MANUFACTURING FACILITY
+                </span>
+              </div>
+            </Reveal>
+
+            <p className="md:mt-4 text-sm md:text-[18px] leading-relaxed text-[#5B5E67]">
               At Conbell Engineering, we believe quality engineering is about
               creating solutions that businesses can rely on. With expertise in
               engineering, fabrication, and industrial solutions, we combine
@@ -329,78 +352,56 @@ export default function AboutPage() {
             </Reveal>
             <AnimatedHeading
               as="h2"
-              text="Meet Our Founders"
+              text="Meet Our Directors"
               className={`font-sans mt-1 text-3xl font-extrabold ${HEADING_COLOR} sm:text-4xl`}
               viewportAmount={0.6}
             />
           </div>
 
-          <div className="mt-12 flex flex-col gap-16">
-            {FOUNDERS.map((person, index) => {
-              const imageFirst = index % 2 !== 0; // alternate on desktop: row1 content-left, row2 image-left, ...
-              return (
-                <div
-                  key={person.name}
-                  className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-14"
-                >
-                  {/* Text block — always after the image on mobile;
-                      alternates left/right on desktop */}
-                  <Reveal
-                    delay={0.1}
-                    className={`order-2 text-center lg:text-left ${
-                      imageFirst ? "lg:order-2" : "lg:order-1"
-                    }`}
-                  >
-                    <p className="text-[13px] font-semibold tracking-wider text-[#5B5E67]">
-                      FOUNDER
-                    </p>
-                    <p className="mt-4 text-[15px] leading-relaxed text-[#5B5E67]">
-                      {person.message || "Founder message to be added."}
-                    </p>
-                    <h3
-                      className={`font-sans mt-6 text-2xl font-bold ${HEADING_COLOR}`}
-                    >
-                      {person.name}
-                    </h3>
-                    <p className="mt-1 text-[13px] font-semibold tracking-wide text-[#B5741A]">
-                      {(
-                        person.designation || "DESIGNATION TO BE ADDED"
-                      ).toUpperCase()}
-                    </p>
-
-                    <Link
-                      href="#contact"
-                      className="mt-6 inline-flex items-center gap-2 rounded-full border border-gray-200 px-5 py-2.5 text-[13px] font-semibold text-[#0B1C30] transition-colors hover:bg-[#EFF4FF]"
-                    >
-                      Get in touch
-                      <ArrowUpRight size={14} />
-                    </Link>
-                  </Reveal>
-
-                  {/* Image block — always first on mobile; alternates
-                      left/right on desktop */}
-                  <Reveal
-                    className={`order-1 relative mx-auto h-[280px] w-full max-w-[420px] overflow-hidden rounded-2xl bg-[#EFF4FF] sm:h-[340px] lg:mx-0 lg:h-[380px] lg:max-w-none ${
-                      imageFirst ? "lg:order-1" : "lg:order-2"
-                    }`}
-                  >
-                    {person.image ? (
-                      <Image
-                        src={person.image}
-                        alt={person.name}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <User size={48} className="text-[#0F4C81]" />
-                      </div>
-                    )}
-                  </Reveal>
+          <StaggerGrid className="mt-12 grid grid-cols-1 gap-7 lg:grid-cols-2 lg:gap-10">
+            {FOUNDERS.map((person) => (
+              <motion.div
+                key={person.name}
+                variants={staggerItem}
+                className="flex flex-col items-center gap-5 rounded-2xl bg-[#F8F9FF] p-6 text-center shadow-sm sm:p-8 lg:flex-row lg:items-center lg:gap-8 lg:text-left"
+              >
+                {/* Portrait photo — 7:11 aspect ratio (2200x1400 px).
+                    Full-width on mobile, fixed-width column on desktop. */}
+                <div className="relative aspect-[7/11] w-full max-w-[280px] overflow-hidden rounded-xl bg-[#EFF4FF] lg:w-[210px] lg:max-w-none lg:shrink-0">
+                  {person.image ? (
+                    <Image
+                      src={person.image}
+                      alt={person.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <User size={48} className="text-[#0F4C81]" />
+                    </div>
+                  )}
                 </div>
-              );
-            })}
-          </div>
+
+                {/* Content — mobile order: message, name, designation.
+                    Desktop order: name, designation, message. */}
+                <div className="flex flex-col items-center lg:items-start">
+                  <p className="order-1 text-[14px] leading-relaxed text-[#5B5E67] sm:text-[15px] lg:order-3 lg:mt-3">
+                    {person.message || "Founder message to be added."}
+                  </p>
+                  <h3
+                    className={`font-sans order-2 mt-5 text-xl font-bold ${HEADING_COLOR} sm:text-2xl lg:order-1 lg:mt-0`}
+                  >
+                    {person.name}
+                  </h3>
+                  <p className="order-3 mt-1 text-[13px] font-semibold tracking-wide text-[#0F4C81] sm:text-[14px] lg:order-2">
+                    {(
+                      person.designation || "DESIGNATION TO BE ADDED"
+                    ).toUpperCase()}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </StaggerGrid>
         </div>
       </section>
 

@@ -28,8 +28,10 @@ const inter = Inter({
 const QUICK_LINKS = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
-  { label: "Products & Capabilities", href: "/products" },
+  { label: "Products", href: "/products" },
   { label: "Our Presence", href: "/our-presence" },
+  { label: "Our Expertise", href: "/our-expertise" },
+  { label: "Clients", href: "/clients" },
   { label: "Contact Us", href: "/contact" },
 ];
 
@@ -70,31 +72,20 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_1.2fr]">
           {/* Company blurb */}
           <div>
-            <h2 className="font-[family-name:var(--font-manrope)] text-xl font-bold text-white">
-              CONBELL ENGINEERING
-            </h2>
+            <div className="relative h-16 w-54">
+              <Image
+                src="/logo.png"
+                alt="ConBell Engineering"
+                fill
+                className="object-contain object-left -ml-6"
+                sizes="160px"
+              />
+            </div>
             <p className="mt-4 font-[family-name:var(--font-inter)] text-sm leading-relaxed text-[#AEB7C7]">
               A trusted engineering partner delivering precision fabrication and
               industrial solutions across automotive, defense, power, and
               infrastructure sectors.
             </p>
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-1.5 font-[family-name:var(--font-inter)] text-xs font-bold tracking-wide text-white transition-colors hover:text-[#7FB2E5]"
-              >
-                VIEW MORE
-                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-              </Link>
-              <span className="text-white/20">•</span>
-              <Link
-                href="/safety-policy"
-                className="inline-flex items-center gap-2 rounded-lg bg-[#0F4C81] px-3.5 py-2 font-[family-name:var(--font-manrope)] text-xs font-bold tracking-wide text-white shadow-sm transition-all hover:bg-[#1560a1] hover:shadow-md"
-              >
-                <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                SAFETY &amp; HEALTH POLICY
-              </Link>
-            </div>
           </div>
 
           {/* Quick links & Policies */}
@@ -114,26 +105,6 @@ export default function Footer() {
                       aria-hidden="true"
                     />
                     {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            <h4 className="mt-6 font-[family-name:var(--font-manrope)] text-xs font-bold uppercase tracking-wider text-slate-400">
-              POLICIES &amp; COMPLIANCE
-            </h4>
-            <ul className="mt-2.5 space-y-1.5">
-              {POLICY_LINKS.map((policy) => (
-                <li key={policy.label}>
-                  <Link
-                    href={policy.href}
-                    className="flex items-center gap-1.5 font-[family-name:var(--font-inter)] text-xs text-[#AEB7C7] transition-colors hover:text-white"
-                  >
-                    <ChevronRight
-                      className="h-3 w-3 flex-shrink-0 text-[#0F4C81]"
-                      aria-hidden="true"
-                    />
-                    {policy.label}
                   </Link>
                 </li>
               ))}
@@ -183,7 +154,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          <div className="flex flex-nowrap items-center justify-center gap-4 text-xs font-medium text-[#AEB7C7]">
+          <div className="md:hidden flex flex-nowrap items-center justify-center gap-4 text-xs font-medium text-[#AEB7C7]">
             <Link
               href="/safety-policy"
               className="transition-colors hover:text-white"
@@ -215,7 +186,7 @@ export default function Footer() {
             Copyright © ConBell Engineering Pvt Ltd 2026-27
           </p>
 
-          <div className="hidden md:block flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-[#AEB7C7]">
+          <div className="hidden md:flex flex-nowrap items-center justify-center gap-4 text-xs font-medium text-[#AEB7C7]">
             <Link
               href="/safety-policy"
               className="transition-colors hover:text-white"

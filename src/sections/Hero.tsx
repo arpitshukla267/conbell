@@ -12,7 +12,8 @@ const manrope = Manrope({
 
 interface Slide {
   id: number;
-  image: string;
+  imageDesktop: string;
+  imageMobile: string;
   heading: string;
   accentHeading: string;
   subtext: string;
@@ -21,7 +22,8 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: 1,
-    image: "/hero/hero1.webp",
+    imageDesktop: "/hero/hero1.webp",
+    imageMobile: "/hero/hero1-mobile.webp",
     heading: "Precision Metal Manufacturing.",
     accentHeading: "Engineered for Industrial Excellence.",
     subtext:
@@ -29,7 +31,8 @@ const slides: Slide[] = [
   },
   {
     id: 2,
-    image: "/hero/hero2.webp",
+    imageDesktop: "/hero/hero2.webp",
+    imageMobile: "/hero/hero2-mobile.webp",
     heading: "Certified Quality Systems.",
     accentHeading: "ISO-Compliant From Start to Finish.",
     subtext:
@@ -37,19 +40,12 @@ const slides: Slide[] = [
   },
   {
     id: 3,
-    image: "/hero/hero1.webp",
+    imageDesktop: "/hero/hero3.webp",
+    imageMobile: "/hero/hero3-mobile.webp",
     heading: "Turnkey Project Deployment.",
     accentHeading: "From Blueprint to Installed Structure.",
     subtext:
       "Our teams manage design review, fabrication, finishing, and on-site installation, so your project moves forward without coordination gaps.",
-  },
-  {
-    id: 4,
-    image: "/hero/hero2.webp",
-    heading: "Trusted by Industry Leaders.",
-    accentHeading: "Decades of Fabrication Expertise.",
-    subtext:
-      "Partnering with manufacturers across heavy industry, energy, and infrastructure to deliver components that perform under demanding conditions.",
   },
 ];
 
@@ -64,6 +60,21 @@ const NAVBAR_HEIGHT_PX = 80;
 export default function Hero() {
   const [current, setCurrent] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+  
+    handleResize();
+  
+    window.addEventListener("resize", handleResize);
+  
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const goTo = (index: number) => {
     setCurrent(((index % slides.length) + slides.length) % slides.length);
@@ -130,13 +141,23 @@ export default function Hero() {
             className="relative h-full flex-shrink-0"
             style={{ width: `${100 / slides.length}%` }}
           >
+            {isMobile ? (
+              <Image
+                src={slide.imageMobile}
+                 alt=""
+                 fill
+                 priority={index === 0}
+                 className="object-cover"
+              />
+            ) : (
             <Image
-              src={slide.image}
+              src={slide.imageDesktop}
               alt=""
               fill
               priority={index === 0}
               className="object-cover"
             />
+            )}
           </div>
         ))}
       </div>
