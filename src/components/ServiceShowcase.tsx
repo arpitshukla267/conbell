@@ -137,7 +137,7 @@ export default function ServiceShowcase({
               className="mt-10 flex flex-wrap items-center gap-4"
             >
               <Link
-                href="/contact"
+                href={`/contact?service=${encodeURIComponent(service.title)}`}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00355F] px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#08243e]"
               >
                 <PhoneCall size={16} />

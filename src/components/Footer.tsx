@@ -123,7 +123,7 @@ export default function Footer() {
                   aria-hidden="true"
                 />
                 <p className="font-[family-name:var(--font-inter)] text-sm leading-relaxed text-[#AEB7C7]">
-                  <span className="font-semibold text-white">Factory – </span>
+                  <span className="font-semibold text-white"> </span>
                   Survey No. 298/A, Vadavswami-Ambapura Road, Village:
                   Vadavswami, Ta.: Kalol (N.G) – 382740, Gujarat.
                 </p>

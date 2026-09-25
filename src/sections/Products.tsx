@@ -247,7 +247,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           style={{ transitionDelay: `${index * 90 + 300}ms` }}
         >
           <Link
-            href="/contact"
+            href={`/contact?product=${encodeURIComponent(product.title)}`}
             className="flex-1 rounded-md bg-[#00355F] px-3 py-2.5 text-center text-[12.5px] font-semibold text-white transition-colors hover:bg-[#0b2640]"
           >
             Enquire Now

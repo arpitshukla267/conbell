@@ -225,7 +225,7 @@ export default function SafetyPolicyPage() {
                     <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#00355F]" />
                     <div>
                       <p className="text-xs font-bold text-slate-900">
-                        Factory Address
+                        Address
                       </p>
                       <p className="mt-1 text-xs leading-relaxed text-slate-600">
                         Survey No. 298/A, Vadavswami-Ambapura Road, Village:

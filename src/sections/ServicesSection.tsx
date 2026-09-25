@@ -277,7 +277,7 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
             Learn More
           </Link>
           <Link
-            href="/contact"
+            href={`/contact?service=${encodeURIComponent(service.title)}`}
             className="
               flex-1
               rounded-md

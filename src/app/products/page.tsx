@@ -218,7 +218,7 @@ export default function ProductsPage() {
               key={product.id}
               className="flex flex-col overflow-hidden rounded-lg border border-[#E4E9F2] bg-white"
             >
-              <div className="relative h-44 w-full">
+              <div className="relative h-54 w-full">
                 <Image
                   src={product.image}
                   alt={product.title}
@@ -236,12 +236,12 @@ export default function ProductsPage() {
                   {product.description}
                 </p>
 
-                <button
-                  type="button"
-                  className="mt-5 w-full rounded-md bg-[#0B1C30] px-4 py-2.5 font-[family-name:var(--font-inter)] text-sm font-semibold text-white transition-colors hover:bg-[#0F4C81]"
+                <Link
+                  href={`/contact?product=${encodeURIComponent(product.title)}`}
+                  className="mt-5 block w-full rounded-md bg-[#0B1C30] px-4 py-2.5 text-center font-[family-name:var(--font-inter)] text-sm font-semibold text-white transition-colors hover:bg-[#0F4C81]"
                 >
                   Enquire Now
-                </button>
+                </Link>
               </div>
             </article>
           ))}

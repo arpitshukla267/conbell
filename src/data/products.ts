@@ -29,16 +29,16 @@ export type Product = {
   longDescription: string; // fuller paragraph for the detail page
   features: string[]; // bullet highlights for the detail page
 
-  // Images
+  //
   image: string; // main / cover image (card + detail hero)
-  gallery: string[]; // additional images for the detail page
+  gallery: string[]; // additional for the detail page
 
   specs: Spec[];
 };
 
 // ---------- Data ----------
 // Replace every `image` / `gallery` path with real assets once available
-// (e.g. /images/products/conveyor-structure.jpg).
+// (e.g. /products/conveyor-structure.webp).
 
 export const PRODUCTS: Product[] = [
   {
@@ -56,10 +56,10 @@ export const PRODUCTS: Product[] = [
       "Painted or hot-dip galvanized finish",
       "Compatible with overhead and ground-mounted runs",
     ],
-    image: "/images/products/conveyor-structure.jpg",
+    image: "/products/conveyor-structure.webp",
     gallery: [
-      "/images/products/conveyor-structure-1.jpg",
-      "/images/products/conveyor-structure-2.jpg",
+      "/products/conveyor-structure-1.webp",
+      "/products/conveyor-structure-2.webp",
     ],
     specs: [
       { label: "Material", value: "MS / GI structural steel" },
@@ -82,10 +82,10 @@ export const PRODUCTS: Product[] = [
       "Integrated staircases and handrails available",
       "Designed to your load and layout requirements",
     ],
-    image: "/images/products/mezzanine-floor.jpg",
+    image: "/products/mezzanine-floor.webp",
     gallery: [
-      "/images/products/mezzanine-floor-1.jpg",
-      "/images/products/mezzanine-floor-2.jpg",
+      "/products/mezzanine-floor-1.webp",
+      "/products/mezzanine-floor-2.webp",
     ],
     specs: [
       { label: "Load Capacity", value: "Up to project spec" },
@@ -108,10 +108,10 @@ export const PRODUCTS: Product[] = [
       "Consistent height and mounting throughout",
       "Painted or galvanized finish options",
     ],
-    image: "/images/products/safety-rail-toe-guard.jpg",
+    image: "/products/safety-rail-toe-guard.webp",
     gallery: [
-      "/images/products/safety-rail-toe-guard-1.jpg",
-      "/images/products/safety-rail-toe-guard-2.jpg",
+      "/products/safety-rail-toe-guard-1.webp",
+      "/products/safety-rail-toe-guard-2.webp",
     ],
     specs: [
       { label: "Standard", value: "Industrial safety compliant" },
@@ -134,10 +134,10 @@ export const PRODUCTS: Product[] = [
       "Ladder or staircase access points",
       "Handrail and toe guard ready",
     ],
-    image: "/images/products/catwalk-structure-support.jpg",
+    image: "/products/catwalk-structure-support.webp",
     gallery: [
-      "/images/products/catwalk-structure-support-1.jpg",
-      "/images/products/catwalk-structure-support-2.jpg",
+      "/products/catwalk-structure-support-1.webp",
+      "/products/catwalk-structure-support-2.webp",
     ],
     specs: [
       { label: "Access", value: "Ladders / staircases integrated" },
@@ -160,10 +160,10 @@ export const PRODUCTS: Product[] = [
       "Matched components for a consistent finish",
       "MS or wire mesh options",
     ],
-    image: "/images/products/screen-guard-hanger-support-rail.jpg",
+    image: "/products/screen-guard-hanger-support-rail.webp",
     gallery: [
-      "/images/products/screen-guard-hanger-support-rail-1.jpg",
-      "/images/products/screen-guard-hanger-support-rail-2.jpg",
+      "/products/screen-guard-hanger-support-rail-1.webp",
+      "/products/screen-guard-hanger-support-rail-2.webp",
     ],
     specs: [
       { label: "Components", value: "Screen, hanger, support, rail" },
@@ -186,10 +186,10 @@ export const PRODUCTS: Product[] = [
       "Straight and curved runs available",
       "Matched to your trolley or load system",
     ],
-    image: "/images/products/rail-guide.jpg",
+    image: "/products/rail-guide.webp",
     gallery: [
-      "/images/products/rail-guide-1.jpg",
-      "/images/products/rail-guide-2.jpg",
+      "/products/rail-guide-1.webp",
+      "/products/rail-guide-2.webp",
     ],
     specs: [
       { label: "Material", value: "MS / wear-resistant steel" },
@@ -212,10 +212,10 @@ export const PRODUCTS: Product[] = [
       "End-to-end execution",
       "Coordinated with your project timeline",
     ],
-    image: "/images/products/special-fabrication-job.jpg",
+    image: "/products/special-fabrication-job.webp",
     gallery: [
-      "/images/products/special-fabrication-job-1.jpg",
-      "/images/products/special-fabrication-job-2.jpg",
+      "/products/special-fabrication-job-1.webp",
+      "/products/special-fabrication-job-2.webp",
     ],
     specs: [
       { label: "Scope", value: "Foundation, EPC, civil work" },
@@ -238,10 +238,10 @@ export const PRODUCTS: Product[] = [
       "Suited to process units and building frames",
       "Quality-checked welds and joints",
     ],
-    image: "/images/products/heavy-structure.jpg",
+    image: "/products/heavy-structure.png",
     gallery: [
-      "/images/products/heavy-structure-1.jpg",
-      "/images/products/heavy-structure-2.jpg",
+      "/products/heavy-structure-1.webp",
+      "/products/heavy-structure-2.webp",
     ],
     specs: [
       { label: "Material", value: "Structural steel (MS)" },
@@ -264,8 +264,8 @@ export const PRODUCTS: Product[] = [
       "Access ladders, nozzles, and fittings",
       "Tested before dispatch",
     ],
-    image: "/images/products/tanks.jpg",
-    gallery: ["/images/products/tanks-1.jpg", "/images/products/tanks-2.jpg"],
+    image: "/products/tanks.webp",
+    gallery: ["/products/tanks-1.webp", "/products/tanks-2.webp"],
     specs: [
       { label: "Material", value: "MS / SS" },
       { label: "Capacity", value: "Built to project spec" },
@@ -287,10 +287,10 @@ export const PRODUCTS: Product[] = [
       "Painted or galvanized finish",
       "Matched to existing structure finish",
     ],
-    image: "/images/products/handrails.jpg",
+    image: "/products/handrails.webp",
     gallery: [
-      "/images/products/handrails-1.jpg",
-      "/images/products/handrails-2.jpg",
+      "/products/handrails-1.webp",
+      "/products/handrails-2.webp",
     ],
     specs: [
       { label: "Material", value: "MS pipe / angle" },
@@ -313,10 +313,10 @@ export const PRODUCTS: Product[] = [
       "Integrated access and railing",
       "Fixed or modular designs",
     ],
-    image: "/images/products/platforms.jpg",
+    image: "/products/platforms.webp",
     gallery: [
-      "/images/products/platforms-1.jpg",
-      "/images/products/platforms-2.jpg",
+      "/products/platforms-1.webp",
+      "/products/platforms-2.webp",
     ],
     specs: [
       { label: "Flooring", value: "Chequered plate / grating" },
@@ -339,10 +339,10 @@ export const PRODUCTS: Product[] = [
       "Lighting and access points included",
       "Panel or modular construction",
     ],
-    image: "/images/products/paint-booth.jpg",
+    image: "/products/paint-booth.webp",
     gallery: [
-      "/images/products/paint-booth-1.jpg",
-      "/images/products/paint-booth-2.jpg",
+      "/products/paint-booth-1.webp",
+      "/products/paint-booth-2.webp",
     ],
     specs: [
       { label: "Construction", value: "Panel / modular steel" },
@@ -365,10 +365,10 @@ export const PRODUCTS: Product[] = [
       "Manual or motorized options",
       "Load-rated to project requirement",
     ],
-    image: "/images/products/trolley.jpg",
+    image: "/products/trolley.webp",
     gallery: [
-      "/images/products/trolley-1.jpg",
-      "/images/products/trolley-2.jpg",
+      "/products/trolley-1.webp",
+      "/products/trolley-2.webp",
     ],
     specs: [
       { label: "Drive", value: "Manual or motorized" },
@@ -391,10 +391,10 @@ export const PRODUCTS: Product[] = [
       "Keeps floor space clear beneath the line",
       "Painted or galvanized finish",
     ],
-    image: "/images/products/conveyor-hangars.jpg",
+    image: "/products/conveyor-hangars.webp",
     gallery: [
-      "/images/products/conveyor-hangars-1.jpg",
-      "/images/products/conveyor-hangars-2.jpg",
+      "/products/conveyor-hangars-1.webp",
+      "/products/conveyor-hangars-2.webp",
     ],
     specs: [
       { label: "Mounting", value: "Overhead / ceiling suspended" },
@@ -417,10 +417,10 @@ export const PRODUCTS: Product[] = [
       "Coordinated project timeline",
       "Suited to multi-structure or plant-wide scopes",
     ],
-    image: "/images/products/turnkey-projects.jpg",
+    image: "/products/turnkey-projects.webp",
     gallery: [
-      "/images/products/turnkey-projects-1.jpg",
-      "/images/products/turnkey-projects-2.jpg",
+      "/products/turnkey-projects-1.webp",
+      "/products/turnkey-projects-2.webp",
     ],
     specs: [
       { label: "Scope", value: "Design, fabrication, installation" },
