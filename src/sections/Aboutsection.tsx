@@ -283,7 +283,7 @@ export default function AboutSection() {
           ))}
         </div>
 
-        <div
+        {/* <div
           ref={cta.ref}
           className={`mt-4 flex flex-wrap items-center gap-7 ${revealClass(
             cta.inView,
@@ -318,7 +318,7 @@ export default function AboutSection() {
               <strong className="font-semibold"> +91 95866 10281</strong>
             </span>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
