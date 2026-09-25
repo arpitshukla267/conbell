@@ -157,9 +157,6 @@ export default function FAQSection() {
               : "translate-y-6 opacity-0"
           }`}
         >
-          <p className="text-[13px] font-semibold tracking-wider text-[#00355F]">
-            PROCUREMENT FAQ
-          </p>
           <h2
             className={`${manrope.className} mt-2 text-3xl font-bold leading-tight text-[#0B1C30] sm:text-4xl`}
           >

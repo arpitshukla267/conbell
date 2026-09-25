@@ -501,17 +501,6 @@ export default function ProductsSection() {
         <div className="grid grid-cols-1 items-end gap-6 mb-12 lg:grid-cols-[6fr_4fr]">
           {/* Header */}
           <div ref={headerRef}>
-            <div
-              className={`
-                mb-2 inline-flex items-center gap-2 rounded-full bg-[#DCE9FF] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#00355F]
-                transition-all duration-700 ease-out
-                ${headerInView ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}
-              `}
-              style={{ transitionDelay: "0ms" }}
-            >
-              <span>Our Range</span>
-            </div>
-
             <h2 className="max-w-2xl text-3xl font-bold leading-[1.15] tracking-[-0.03em] text-slate-900 sm:text-4xl lg:text-[44px]">
               <AnimatedReveal
                 text="Our Products"

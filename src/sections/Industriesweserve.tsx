@@ -57,9 +57,6 @@ export default function IndustriesWeServe() {
     <section className="bg-[#F8F9FF] px-6 py-16">
       <div className="mx-auto max-w-[1400px]">
         <div className="mb-12 max-w-2xl">
-          <p className="text-[13px] font-semibold tracking-wider text-[#0F4C81]">
-            WHO WE WORK WITH
-          </p>
           <h2
             className={`${manrope.className} mt-2 text-3xl font-bold text-[#0B1C30] sm:text-4xl`}
           >
