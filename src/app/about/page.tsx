@@ -285,12 +285,6 @@ export default function AboutPage() {
               fill
               className="object-cover"
             />
-            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between bg-black/60 px-4 py-2.5 text-white">
-              <span className="flex items-center gap-2 text-[13px] font-semibold">
-                <Factory size={14} />
-                MANUFACTURING FACILITY
-              </span>
-            </div>
           </Reveal>
 
           {/* Content — vertically centered so it visually fills the

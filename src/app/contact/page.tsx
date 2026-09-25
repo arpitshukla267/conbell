@@ -117,11 +117,7 @@ function ContactPageContent() {
               Contact &amp; RFQ
             </span>
           </nav>
-
-          <p className="mb-3 font-[family-name:var(--font-inter)] text-xs font-semibold tracking-wide text-[#5B5E67]">
-            ENGINEERING TECHNICAL SALES &amp; PROCUREMENT DESK
-          </p>
-
+          
           <h1 className="max-w-2xl font-[family-name:var(--font-manrope)] text-3xl font-bold leading-tight text-[#0B1C30] md:text-4xl">
             Connect with Our Engineering &amp; Procurement Team
           </h1>

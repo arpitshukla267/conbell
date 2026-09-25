@@ -154,12 +154,7 @@ export default function ProductsPage() {
               Products &amp; Capabilities
             </span>
           </nav>
-
-          {/* Eyebrow */}
-          <p className="mb-3 font-[family-name:var(--font-inter)] text-xs font-semibold tracking-wide text-[#5B5E67]">
-            INSTITUTIONAL TECHNICAL CATALOG • REVISION 2025.4
-          </p>
-
+          
           {/* Heading */}
           <div className="max-w-2xl">
             <h1 className="font-[family-name:var(--font-manrope)] text-3xl font-bold leading-tight text-[#0B1C30] md:text-4xl">
