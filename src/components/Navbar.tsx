@@ -119,11 +119,7 @@ function NavbarContent({
           <div className="flex flex-wrap items-center gap-6">
             <div className="hidden items-center gap-1.5 whitespace-nowrap text-slate-200 md:flex">
               <MapPin size={14} className="shrink-0" />
-              <span>Industrial Area, India</span>
-            </div>
-            <div className="flex items-center gap-1.5 whitespace-nowrap text-slate-200">
-              <MessageCircle size={14} className="shrink-0" />
-              <span>WhatsApp Desk</span>
+              <span>Vadavswami, Gujrat, India</span>
             </div>
           </div>
         </div>
