@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-const SPLASH_DURATION_MS = 6000;
+const SPLASH_DURATION_DESKTOP_MS = 6000;
+const SPLASH_DURATION_MOBILE_MS = 5000;
+const FALLBACK_BUFFER_MS = 300; // safety margin in case animationend never fires
 
 interface StartupLoaderProps {
   onAnimationDone?: () => void;
@@ -31,13 +33,52 @@ export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    const splashTimer = setTimeout(() => {
+    const splashEl = document.querySelector(".masked");
+
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
       setShowSplash(false);
       onAnimationDone?.();
-    }, SPLASH_DURATION_MS);
+    };
+
+    // animationend fires on the element carrying the `animation` property.
+    // Here that's .masked::before, but pseudo-element events bubble up
+    // and are observable on the real .masked node.
+    const handleAnimationEnd = (e: AnimationEvent) => {
+      if (
+        e.animationName === "revealDesktop" ||
+        e.animationName === "revealMobile"
+      ) {
+        finish();
+      }
+    };
+
+    splashEl?.addEventListener(
+      "animationend",
+      handleAnimationEnd as EventListener,
+    );
+
+    // Fallback safety net only — fires if animationend never happens
+    // (e.g. prefers-reduced-motion disabling the animation, or some
+    // browser/CSS edge case). Under normal conditions this should
+    // basically never win the race.
+    const isMobile = window.innerWidth < 768;
+    const fallbackDuration = isMobile
+      ? SPLASH_DURATION_MOBILE_MS
+      : SPLASH_DURATION_DESKTOP_MS;
+    const fallbackTimer = setTimeout(
+      finish,
+      fallbackDuration + FALLBACK_BUFFER_MS,
+    );
 
     return () => {
-      clearTimeout(splashTimer);
+      splashEl?.removeEventListener(
+        "animationend",
+        handleAnimationEnd as EventListener,
+      );
+      clearTimeout(fallbackTimer);
       document.body.style.overflow = prevOverflow;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -291,7 +332,8 @@ export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
 
         /* ═══════════════════════════════════════════
            MOBILE — 4 strips  (< 768px)
-           Timeline mirrors desktop's 6s (open → 1s hold → close)
+           Timeline (5s total): compressed from 6s — dead white hold removed.
+           1.6s open → hold → close, ends right when animation ends.
            ═══════════════════════════════════════════ */
         @media (max-width: 767px) {
           .masked {
@@ -300,7 +342,7 @@ export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
             /* 2. Exactly 0.5px border/overlap between strips in mobile (was 1.5px) */
             --strip-w: calc(100% / 4 + 0.5px);
             /* 3. TO CHANGE MOBILE STRIP HEIGHT: adjust this percentage (e.g. 40%, 45%, 50%) */
-            --strip-h: 65%;
+            --strip-h: 45%;
           }
 
           .masked::before {
@@ -341,7 +383,7 @@ export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
               var(--strip-w) 0%, var(--strip-w) 0%,
               100% 100%;
 
-            animation: revealMobile 6s ease-out forwards;
+            animation: revealMobile 5s ease-out forwards;
           }
         }
 
@@ -358,7 +400,7 @@ export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
               100% 100%;
           }
           /* strips 1 & 4 open */
-          13.3333% {
+          16% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) 0%,
               var(--strip-w) 0%, var(--strip-w) var(--strip-h),
@@ -369,7 +411,7 @@ export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
               100% 100%;
           }
           /* all 4 open */
-          26.6667% {
+          32% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
@@ -379,8 +421,8 @@ export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               100% 100%;
           }
-          /* hold: 1s pause with all strips open (26.6667% → 43.3333% of 6s) */
-          43.3333% {
+          /* hold: pause with all strips open */
+          52% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
               var(--strip-w) var(--strip-h), var(--strip-w) var(--strip-h),
@@ -391,7 +433,7 @@ export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
               100% 100%;
           }
           /* strips 2 & 3 close */
-          66.66% {
+          80% {
             -webkit-mask-size:
               var(--strip-w) var(--strip-h), var(--strip-w) 0%,
               var(--strip-w) 0%, var(--strip-w) var(--strip-h),
@@ -401,18 +443,7 @@ export default function StartupLoader({ onAnimationDone }: StartupLoaderProps) {
               var(--strip-w) 0%, var(--strip-w) var(--strip-h),
               100% 100%;
           }
-          /* strips 1 & 4 close */
-          83.33% {
-            -webkit-mask-size:
-              var(--strip-w) 0%, var(--strip-w) 0%,
-              var(--strip-w) 0%, var(--strip-w) 0%,
-              100% 100%;
-            mask-size:
-              var(--strip-w) 0%, var(--strip-w) 0%,
-              var(--strip-w) 0%, var(--strip-w) 0%,
-              100% 100%;
-          }
-          /* fully revealed */
+          /* strips 1 & 4 close — fully revealed, right at animation end */
           100% {
             -webkit-mask-size:
               var(--strip-w) 0%, var(--strip-w) 0%,

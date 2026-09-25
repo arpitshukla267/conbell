@@ -123,7 +123,7 @@ export default function CoreStrengthsSection() {
     <section className="bg-white lg:overflow-visible overflow-hidden">
       <div className="mx-auto grid max-w-[100%] grid-cols-1 lg:grid-cols-[660px_minmax(0,1fr)]">
         {/* ================= LEFT DARK PANEL ================= */}
-        <div className="flex flex-col justify-between bg-[#00355F] px-8 py-16 sm:px-14 sm:py-20 lg:px-14 lg:py-16">
+        <div className="flex flex-col justify-between bg-[#00355F] px-8 py-12 sm:px-14 sm:py-20 lg:px-14 lg:py-16">
           <div>
             <motion.h2
               initial="hidden"
@@ -170,7 +170,7 @@ export default function CoreStrengthsSection() {
         </div>
 
         {/* ================= RIGHT LIST PANEL ================= */}
-        <div className="flex flex-col justify-center gap-8 bg-white px-4 py-16 sm:px-14 sm:py-20 lg:gap-14 lg:px-16 lg:py-16 xl:px-20">
+        <div className="flex flex-col justify-center gap-8 bg-white px-4 py-12 sm:px-14 sm:py-20 lg:gap-14 lg:px-16 lg:py-16 xl:px-20">
           {STRENGTHS.map((item, index) => {
             const Icon = item.icon;
             const isLast = index === STRENGTHS.length - 1;
@@ -201,13 +201,13 @@ export default function CoreStrengthsSection() {
                 </motion.div>
 
                 {/* Text */}
-                <div className="pt-1">
+                <div className="pt-1 flex-1 min-w-0 lg:-ml-[104px] xl:-ml-[120px]">
                   <h3
                     className={`${manrope.className} mb-2 text-[19px] font-bold leading-[1.3] text-[#10243E] sm:text-[21px]`}
                   >
                     {item.title}
                   </h3>
-                  <p className="text-[14.5px] font-normal leading-[1.65] text-[#6B7280] self-start text-left">
+                  <p className="w-full text-[14.5px] font-normal leading-[1.65] text-[#6B7280] self-start text-left">
                     {item.description}
                   </p>
                 </div>
