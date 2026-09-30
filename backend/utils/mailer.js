@@ -23,7 +23,7 @@ function getResendClient() {
  * @param {string} options.subject - Email subject
  * @param {string} [options.html] - HTML body
  * @param {string} [options.text] - Plain text body
- * @param {string} [options.from] - Sender override (verified domain ka hona chahiye)
+ * @param {string} [options.from] - Sender override (must belong to a verified domain)
  * @param {string|string[]} [options.replyTo] - Reply-To address
  * @param {Array<{filename: string, content?: Buffer|string, path?: string, url?: string}>} [options.attachments]
  * @returns {Promise<{id: string, success: boolean}>}
@@ -103,31 +103,35 @@ async function sendMail({
       }
 
       // 4. Remote HTTP(S) URL (e.g. Cloudinary)
+      // The file is downloaded here and sent as content. If the download fails,
+      // we throw a clear error instead of passing an inaccessible URL to Resend.
       if (
         filePathOrUrl.startsWith("http://") ||
         filePathOrUrl.startsWith("https://")
       ) {
+        let res;
         try {
-          const res = await fetch(filePathOrUrl);
-          if (res.ok) {
-            const arrayBuf = await res.arrayBuffer();
-            formattedAttachments.push({
-              filename,
-              content: Buffer.from(arrayBuf),
-            });
-            continue;
-          }
+          res = await fetch(filePathOrUrl);
         } catch (fetchErr) {
           console.error(
             `Failed to fetch attachment from ${filePathOrUrl}:`,
             fetchErr,
           );
+          throw new Error(
+            `Attachment "${filename}" could not be downloaded. Please check that the file URL is publicly accessible.`,
+          );
         }
 
-        // Fallback to passing remote path directly
+        if (!res.ok) {
+          throw new Error(
+            `Attachment "${filename}" could not be downloaded (HTTP ${res.status}). Please check that the file URL is publicly accessible.`,
+          );
+        }
+
+        const arrayBuf = await res.arrayBuffer();
         formattedAttachments.push({
           filename,
-          path: filePathOrUrl,
+          content: Buffer.from(arrayBuf),
         });
       }
     }
@@ -161,7 +165,7 @@ async function sendMail({
 }
 
 /**
- * Website se jane wali mails: contact form, application received.
+ * Emails sent from the website: contact form, application received.
  * Sender: conbellengineering.com
  */
 const sendWebsiteMail = (opts) =>
@@ -174,9 +178,9 @@ const sendWebsiteMail = (opts) =>
   });
 
 /**
- * CMS se jane wali mails: OTP, interview, hire/offer letter, reject.
+ * Emails sent from the CMS: OTP, interview, hire/offer letter, reject.
  * Sender: cms.conbellengineering.com
- * REPLY_TO_EMAIL set ho to replies us inbox me aayenge (optional).
+ * If REPLY_TO_EMAIL is set, replies will be delivered to that inbox (optional).
  */
 const sendCmsMail = (opts) =>
   sendMail({
