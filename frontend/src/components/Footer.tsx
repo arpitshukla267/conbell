@@ -1,0 +1,279 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Manrope, Inter } from "next/font/google";
+import {
+  ChevronRight,
+  MapPin,
+  Phone,
+  Mail,
+  ArrowUp,
+  ShieldCheck,
+} from "lucide-react";
+import { fetchFromBackend } from "../lib/api";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-manrope",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
+});
+
+const QUICK_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "About Us", href: "/about" },
+  { label: "Products", href: "/products" },
+  { label: "Our Presence", href: "/our-presence" },
+  { label: "Our Expertise", href: "/our-expertise" },
+  { label: "Clients", href: "/clients" },
+  { label: "Contact Us", href: "/contact" },
+];
+
+const POLICY_LINKS = [
+  { label: "Safety & Health Policy", href: "/safety-policy" },
+  { label: "Terms & Conditions", href: "/terms-and-conditions" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+];
+
+interface ContactConfig {
+  companyName?: string;
+  brandName?: string;
+  tagline?: string;
+  email?: string;
+  phone?: string;
+  phoneDisplay?: string;
+  addressLines?: string[];
+  copyrightTagline?: string;
+}
+
+const DEFAULT_CONTACT: ContactConfig = {
+  companyName: "Conbell Engineering Private Limited",
+  brandName: "Conbell Engineering",
+  tagline: "A trusted engineering partner delivering precision fabrication and industrial solutions across automotive, defense, power, and infrastructure sectors.",
+  email: "info@conbellengineering.com",
+  phone: "+919586610281",
+  phoneDisplay: "+91-95866 10281",
+  addressLines: [
+    "Survey No. 298/A, Vadavswami-Ambapura Road",
+    "Village: Vadavswami, Ta.: Kalol (N.G) – 382740, Gujarat.",
+  ],
+  copyrightTagline: "Copyright © ConBell Engineering Pvt Ltd 2026-27",
+};
+
+export default function Footer() {
+  const footerRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [contact, setContact] = useState<ContactConfig>(DEFAULT_CONTACT);
+
+  useEffect(() => {
+    fetchFromBackend<Record<string, any>>("/api/content/config", {}).then((data) => {
+      if (data && data.contact) {
+        setContact((prev) => ({ ...prev, ...data.contact }));
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const node = footerRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <footer
+      ref={footerRef}
+      className={`${manrope.variable} ${inter.variable} relative overflow-hidden bg-[#0B1C30]`}
+    >
+      <div className="mx-auto max-w-[95%] px-6 pb-10 pt-12 md:px-10 lg:px-16">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_1.2fr]">
+          {/* Company blurb */}
+          <div>
+            <div className="relative h-16 w-54">
+              <Image
+                src="/logo.png"
+                alt="ConBell Engineering"
+                fill
+                className="object-contain object-left -ml-6"
+                sizes="160px"
+              />
+            </div>
+            <p className="mt-4 font-[family-name:var(--font-inter)] text-sm leading-relaxed text-[#AEB7C7]">
+              {contact.tagline || "A trusted engineering partner delivering precision fabrication and industrial solutions across automotive, defense, power, and infrastructure sectors."}
+            </p>
+          </div>
+
+          {/* Quick links & Policies */}
+          <div>
+            <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-white">
+              QUICK LINKS
+            </h3>
+            <ul className="mt-4 space-y-2">
+              {QUICK_LINKS.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="flex items-start gap-1.5 font-[family-name:var(--font-inter)] text-sm text-[#AEB7C7] transition-colors hover:text-white"
+                  >
+                    <ChevronRight
+                      className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#0F4C81]"
+                      aria-hidden="true"
+                    />
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="font-[family-name:var(--font-manrope)] text-lg font-bold text-white">
+              CONTACT US
+            </h3>
+            <ul className="mt-4 space-y-4">
+              <li className="flex items-start gap-2.5">
+                <MapPin
+                  className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#0F4C81]"
+                  aria-hidden="true"
+                />
+                <p className="font-[family-name:var(--font-inter)] text-sm leading-relaxed text-[#AEB7C7]">
+                  {contact.addressLines && contact.addressLines.length > 0
+                    ? contact.addressLines.join(", ")
+                    : "Survey No. 298/A, Vadavswami-Ambapura Road, Village: Vadavswami, Ta.: Kalol (N.G) – 382740, Gujarat."}
+                </p>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Phone
+                  className="h-4 w-4 flex-shrink-0 text-[#0F4C81]"
+                  aria-hidden="true"
+                />
+                <a
+                  href={`tel:${contact.phone || "+919586610281"}`}
+                  className="font-[family-name:var(--font-inter)] text-sm text-[#AEB7C7] transition-colors hover:text-white"
+                >
+                  {contact.phoneDisplay || contact.phone || "+91-95866 10281"}
+                </a>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Mail
+                  className="h-4 w-4 flex-shrink-0 text-[#0F4C81]"
+                  aria-hidden="true"
+                />
+                <a
+                  href={`mailto:${contact.email || "info@conbellengineering.com"}`}
+                  className="font-[family-name:var(--font-inter)] text-sm text-[#AEB7C7] transition-colors hover:text-white"
+                >
+                  {contact.email || "info@conbellengineering.com"}
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div className="md:hidden flex flex-nowrap items-center justify-center gap-4 text-xs font-medium text-[#AEB7C7]">
+            <Link
+              href="/safety-policy"
+              className="transition-colors hover:text-white"
+            >
+              Safety &amp; Health Policy
+            </Link>
+            <span className="text-white/20">•</span>
+            <Link
+              href="/terms-and-conditions"
+              className="transition-colors hover:text-white"
+            >
+              Terms &amp; Conditions
+            </Link>
+            <span className="text-white/20">•</span>
+            <Link
+              href="/privacy-policy"
+              className="transition-colors hover:text-white"
+            >
+              Privacy Policy
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="relative border-t border-white/10">
+        <div className="mx-auto flex max-w-[95%] flex-col items-center justify-between gap-4 px-6 py-5 text-center md:flex-row md:px-10 lg:px-16">
+          <p className="font-[family-name:var(--font-inter)] text-xs text-[#AEB7C7] sm:text-sm">
+            {contact.copyrightTagline || "Copyright © ConBell Engineering Pvt Ltd 2026-27"}
+          </p>
+
+          <div className="hidden md:flex flex-nowrap items-center justify-center gap-4 text-xs font-medium text-[#AEB7C7]">
+            <Link
+              href="/safety-policy"
+              className="transition-colors hover:text-white"
+            >
+              Safety &amp; Health Policy
+            </Link>
+            <span className="text-white/20">•</span>
+            <Link
+              href="/terms-and-conditions"
+              className="transition-colors hover:text-white"
+            >
+              Terms &amp; Conditions
+            </Link>
+            <span className="text-white/20">•</span>
+            <Link
+              href="/privacy-policy"
+              className="transition-colors hover:text-white"
+            >
+              Privacy Policy
+            </Link>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Scroll to top"
+          onClick={() =>
+            typeof window !== "undefined" &&
+            window.scrollTo({ top: 0, behavior: "smooth" })
+          }
+          className="absolute right-6 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md bg-[#1B2E45] text-white transition-colors hover:bg-[#0F4C81] md:right-10 lg:right-16"
+        >
+          <ArrowUp className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+
+      {/* Full-width logo, slides up into view the first time the footer is scrolled into frame */}
+      <div className="relative h-20 w-full overflow-hidden sm:h-28 md:h-36 lg:h-56">
+        <div
+          className={`absolute inset-0 transition-all duration-[1200ms] ease-out ${
+            isVisible
+              ? "translate-y-0 opacity-100"
+              : "translate-y-full opacity-0"
+          }`}
+        >
+          <Image
+            src="/logo.png"
+            alt="ConBell Engineering"
+            fill
+            className="object-fit object-bottom opacity-40 grayscale"
+            sizes="100vw"
+          />
+        </div>
+      </div>
+    </footer>
+  );
+}
