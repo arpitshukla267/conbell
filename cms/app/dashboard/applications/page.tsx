@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { applicationsApi, type Application } from "@/lib/api";
+import { applicationsApi, fileToBlobUrl, type Application } from "@/lib/api";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -553,6 +553,7 @@ function ResumeViewer({
   const isImage = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext);
   const isDoc = ["doc", "docx"].includes(ext);
   const isPdf = ext === "pdf" || (!isImage && !isDoc);
+  const fileName = `${app.applicantName} - Resume${ext ? `.${ext}` : ".pdf"}`;
 
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
@@ -561,7 +562,8 @@ function ResumeViewer({
   const [downloading, setDownloading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Load file as blob (avoids X-Frame-Options / attachment header issues)
+  // Load file through the backend (/api/files/download) as a blob URL.
+  // Backend Cloudinary se signed download karta hai, isliye public 401 nahi aata.
   useEffect(() => {
     if (isDoc) return;
     let objectUrl: string | null = null;
@@ -569,21 +571,24 @@ function ResumeViewer({
 
     (async () => {
       try {
-        let res = await fetch(url).catch(() => null);
-        if (!res || !res.ok) {
-          res = await fetch(`/api/resume-proxy?url=${encodeURIComponent(url)}`);
-          if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
-        }
-  
-        const raw = await res.blob();
+        const tempUrl = await fileToBlobUrl(url, fileName);
+
+        // Content-Type sahi set karne ke liye blob ko dobara wrap karte hain
+        // (Cloudinary raw files kabhi octet-stream aati hain, iframe ko pdf type chahiye)
+        const raw = await (await fetch(tempUrl)).blob();
+        URL.revokeObjectURL(tempUrl);
+
         const blob = new Blob([raw], {
           type: isPdf ? "application/pdf" : raw.type,
         });
         objectUrl = URL.createObjectURL(blob);
-        if (!cancelled) {
-          setBlobUrl(objectUrl);
-          setStatus("ready");
+
+        if (cancelled) {
+          URL.revokeObjectURL(objectUrl);
+          return;
         }
+        setBlobUrl(objectUrl);
+        setStatus("ready");
       } catch (e: any) {
         if (!cancelled) {
           setErrorMsg(e?.message || "Unknown error");
@@ -596,7 +601,7 @@ function ResumeViewer({
       cancelled = true;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [url, isDoc, isPdf]);
+  }, [url, isDoc, isPdf, fileName]);
 
   // Lock background scroll + close on Escape
   useEffect(() => {
@@ -617,19 +622,33 @@ function ResumeViewer({
     };
   }, [onClose]);
 
-  function handleDownload() {
-    if (!blobUrl) {
-      window.open(url, "_blank", "noopener,noreferrer");
-      return;
-    }
+  async function handleDownload() {
     setDownloading(true);
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = `${app.applicantName} - Resume${ext ? `.${ext}` : ".pdf"}`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setDownloading(false);
+    let tempUrl: string | null = null;
+    try {
+      // Viewer me blob ready hai to wahi use karo, warna (doc files) backend se lao
+      let href = blobUrl;
+      if (!href) {
+        tempUrl = await fileToBlobUrl(url, fileName);
+        href = tempUrl;
+      }
+
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (e: any) {
+      toast.error(e?.message || "Could not download the file.");
+    } finally {
+      if (tempUrl) {
+        // click ke baad thoda ruk kar free karo
+        const u = tempUrl;
+        setTimeout(() => URL.revokeObjectURL(u), 10000);
+      }
+      setDownloading(false);
+    }
   }
 
   return createPortal(
@@ -662,7 +681,11 @@ function ResumeViewer({
               disabled={downloading || status === "loading"}
               className="flex items-center gap-1.5 text-xs"
             >
-              <Download className="h-3.5 w-3.5" />
+              {downloading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5" />
+              )}
               Download
             </Button>
             <button
@@ -692,7 +715,6 @@ function ResumeViewer({
               <p className="max-w-md break-all text-xs text-slate-500">
                 {errorMsg}
               </p>
-              <p className="max-w-md break-all text-xs text-slate-400">{url}</p>
             </div>
           )}
 
