@@ -116,7 +116,8 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/password/send-otp", {
+      // Backend (API_URL) par jaata hai, sidebar ki tarah
+      const res = await fetch(`${API_URL}/api/auth/password/send-otp`, {
         method: "POST",
       });
       const data = await res.json().catch(() => ({}));
@@ -141,7 +142,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/password/reset", {
+      const res = await fetch(`${API_URL}/api/auth/password/reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ otp, newPassword }),
