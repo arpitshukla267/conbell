@@ -337,7 +337,7 @@ export default function CareersPage() {
               </div>
 
               {/* General Application Banner */}
-              <div className="mt-12 rounded-2xl bg-[#EFF4FF]/60 border border-[#D8DEEA] p-6 text-center sm:text-left sm:flex items-center justify-between gap-4">
+              {/* <div className="mt-12 rounded-2xl bg-[#EFF4FF]/60 border border-[#D8DEEA] p-6 text-center sm:text-left sm:flex items-center justify-between gap-4">
                 <div>
                   <h4 className="font-[family-name:var(--font-manrope)] text-base font-bold text-[#0B1C30]">
                     Don&apos;t see the right role listed above?
@@ -354,7 +354,7 @@ export default function CareersPage() {
                   <Send className="h-3.5 w-3.5" />
                   Submit Open Application
                 </button>
-              </div>
+              </div> */}
             </>
           )}
         </div>

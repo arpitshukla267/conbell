@@ -76,6 +76,7 @@ app.use("/api/jobs", require("./routes/jobs"));
 app.use("/api/applications", require("./routes/applications"));
 app.use("/api/upload", require("./routes/upload"));
 app.use("/api/health", require("./routes/health"));
+app.use("/api/files", require("./routes/files"));
 
 // Global Error Handler
 app.use(errorHandler);

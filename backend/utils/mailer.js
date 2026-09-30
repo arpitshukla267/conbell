@@ -1,36 +1,7 @@
 const { Resend } = require("resend");
 const fs = require("fs");
 const path = require("path");
-
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-// Downloads a Cloudinary asset through the Admin/API endpoint,
-// which is not affected by public delivery restrictions.
-async function fetchFromCloudinaryApi(url) {
-  const m = url.match(
-    /res\.cloudinary\.com\/[^/]+\/(image|raw|video)\/(upload|authenticated|private)\/(?:v\d+\/)?(.+)$/,
-  );
-  if (!m) return null;
-
-  const [, resourceType, type, rest] = m;
-  const decoded = decodeURIComponent(rest.split("?")[0]);
-  const isRaw = resourceType === "raw";
-  const publicId = isRaw ? decoded : decoded.replace(/\.[^/.]+$/, "");
-  const format = isRaw ? "" : decoded.split(".").pop();
-
-  const apiUrl = cloudinary.utils.private_download_url(publicId, format, {
-    resource_type: resourceType,
-    type,
-    expires_at: Math.floor(Date.now() / 1000) + 300,
-  });
-  return fetch(apiUrl);
-}
+const { downloadCloudinaryFile } = require("./cloudinaryFile");
 
 let resendInstance = null;
 
@@ -133,30 +104,26 @@ async function sendMail({
       }
 
       // 4. Remote HTTP(S) URL (e.g. Cloudinary)
-      // The file is downloaded here and sent as content. If the download fails,
-      // we throw a clear error instead of passing an inaccessible URL to Resend.
+      // Cloudinary URLs are downloaded through the authenticated helper
+      // (signed download), so public PDF delivery restrictions do not apply.
+      // Other URLs use a plain fetch. If the download fails, we throw a clear
+      // error instead of passing an inaccessible URL to Resend.
       if (
         filePathOrUrl.startsWith("http://") ||
         filePathOrUrl.startsWith("https://")
       ) {
         let res;
         try {
-          res = await fetch(filePathOrUrl);
-
-          if (!res.ok) {
-            const viaApi = await fetchFromCloudinaryApi(filePathOrUrl);
-
-            if (viaApi) {
-              res = viaApi;
-            }
-          }
+          res = filePathOrUrl.includes("res.cloudinary.com")
+            ? await downloadCloudinaryFile(filePathOrUrl)
+            : await fetch(filePathOrUrl);
         } catch (fetchErr) {
           console.error(
             `Failed to fetch attachment from ${filePathOrUrl}:`,
             fetchErr,
           );
           throw new Error(
-            `Attachment "${filename}" could not be downloaded. Please check that the file URL is publicly accessible.`,
+            `Attachment "${filename}" could not be downloaded. Please check that the file URL is accessible.`,
           );
         }
 
@@ -164,7 +131,7 @@ async function sendMail({
 
         if (!res.ok) {
           throw new Error(
-            `Attachment "${filename}" could not be downloaded (HTTP ${res.status}). Please check that the file URL is publicly accessible.`,
+            `Attachment "${filename}" could not be downloaded (HTTP ${res.status}). Please check that the file URL is accessible.`,
           );
         }
 

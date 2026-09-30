@@ -441,6 +441,49 @@ export async function uploadImage(
   );
 }
 
+// ─── Protected file download (resume / offer letter) ─────────────────────────
+/**
+ * Fetches a file through the backend (/api/files/download), which downloads it
+ * from Cloudinary with signed credentials, and returns a blob: URL.
+ *
+ * Usage:
+ *   const blobUrl = await fileToBlobUrl(app.resumeUrl, "resume.pdf");
+ *   <iframe src={blobUrl} />
+ *   <a href={blobUrl} download="resume.pdf">Download</a>
+ *
+ * Component unmount par URL.revokeObjectURL(blobUrl) call karna memory ke liye.
+ */
+export async function fileToBlobUrl(
+  url: string,
+  name = "file.pdf",
+): Promise<string> {
+  const token = getToken();
+  const res = await fetch(
+    `${API}/api/files/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`,
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    },
+  );
+
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error("Your session has expired. Please sign in again.");
+  }
+
+  if (!res.ok) {
+    let msg = "Could not load the file.";
+    try {
+      const json = await res.json();
+      if (json?.error) msg = json.error;
+    } catch {
+      /* response JSON nahi tha, default message rakho */
+    }
+    throw new Error(msg);
+  }
+
+  return URL.createObjectURL(await res.blob());
+}
+
 // ─── Health ───────────────────────────────────────────────────────────────────
 export async function checkHealth(): Promise<boolean> {
   try {

@@ -470,7 +470,7 @@ export default function ApplicationsPage() {
           <p className="text-sm text-slate-600">
             Reject <strong>{rejectApp?.applicantName}</strong> for{" "}
             <strong>{rejectApp?.jobTitle}</strong>? The status will change to
-            rejected. No email is sent to the candidate.
+            rejected.
           </p>
           <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
             <Button
