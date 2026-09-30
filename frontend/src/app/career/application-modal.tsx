@@ -406,7 +406,7 @@ export function ApplicationModal({
                       Click to upload or drag & drop your resume
                     </p>
                     <p className="text-[11px] text-[#5B5E67] mt-0.5">
-                      Word or DOCX files up to 10MB
+                      Pdf, Word or DOCX files up to 10MB
                     </p>
                   </div>
                 ) : (
