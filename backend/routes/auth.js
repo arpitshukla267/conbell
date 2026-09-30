@@ -40,24 +40,45 @@ async function getAdmin() {
   return admin;
 }
 
-// Simple in-memory login rate limit: 10 attempts per 15 minutes per IP
-const loginHits = new Map();
-function loginLimiter(req, res, next) {
-  const ip = req.ip;
-  const now = Date.now();
-  const rec = loginHits.get(ip);
-  if (!rec || rec.resetAt < now) {
-    loginHits.set(ip, { count: 1, resetAt: now + 15 * 60 * 1000 });
-    return next();
-  }
-  if (rec.count >= 10) {
-    return res.status(429).json({
-      error: "Too many login attempts. Please try again in 15 minutes.",
-    });
-  }
-  rec.count++;
-  next();
+// Simple in-memory rate limiter (per IP). Each limiter keeps its own counters.
+function rateLimit(max, windowMs, message) {
+  const hits = new Map();
+  return (req, res, next) => {
+    const ip = req.ip;
+    const now = Date.now();
+    const rec = hits.get(ip);
+    if (!rec || rec.resetAt < now) {
+      hits.set(ip, { count: 1, resetAt: now + windowMs });
+      return next();
+    }
+    if (rec.count >= max) {
+      return res.status(429).json({ error: message });
+    }
+    rec.count++;
+    next();
+  };
 }
+
+// Login: 10 attempts per 15 minutes per IP
+const loginLimiter = rateLimit(
+  10,
+  15 * 60 * 1000,
+  "Too many login attempts. Please try again in 15 minutes.",
+);
+
+// OTP requests (no login needed): 5 per 15 minutes per IP
+const otpRequestLimiter = rateLimit(
+  5,
+  15 * 60 * 1000,
+  "Too many OTP requests. Please try again in 15 minutes.",
+);
+
+// Password reset attempts (no login needed): 10 per 15 minutes per IP
+const resetLimiter = rateLimit(
+  10,
+  15 * 60 * 1000,
+  "Too many attempts. Please try again in 15 minutes.",
+);
 
 /* ---------- routes ---------- */
 
@@ -83,7 +104,9 @@ router.post("/login", loginLimiter, async (req, res, next) => {
 router.get("/me", requireAuth, (req, res) => res.json({ ok: true }));
 
 // POST /api/auth/password/send-otp
-router.post("/password/send-otp", requireAuth, async (req, res, next) => {
+// Login NOT required: the OTP goes only to PASS_RESET (registered admin email),
+// so whoever changes the password must have access to that inbox.
+router.post("/password/send-otp", otpRequestLimiter, async (req, res, next) => {
   try {
     const to = process.env.PASS_RESET;
     if (!to) {
@@ -134,7 +157,8 @@ router.post("/password/send-otp", requireAuth, async (req, res, next) => {
 });
 
 // POST /api/auth/password/reset  { otp, newPassword }
-router.post("/password/reset", requireAuth, async (req, res, next) => {
+// Login NOT required: the emailed OTP is the proof of identity.
+router.post("/password/reset", resetLimiter, async (req, res, next) => {
   try {
     const { otp, newPassword } = req.body || {};
 
