@@ -32,6 +32,20 @@ router.get("/all", async (req, res, next) => {
   }
 });
 
+// GET /api/applications/count?status=pending - lightweight count for the sidebar badge
+router.get('/count', async (req, res, next) => {
+  try {
+    const { status } = req.query;
+    const filter = {};
+    if (status && status !== 'all') filter.status = status;
+
+    const count = await Application.countDocuments(filter);
+    res.json({ success: true, data: { count } });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /api/applications/:id - get single application details & history
 router.get("/:id", async (req, res, next) => {
   try {
@@ -482,16 +496,3 @@ router.delete("/:id", async (req, res, next) => {
 
 module.exports = router;
 
-// GET /api/applications/count?status=pending - lightweight count for the sidebar badge
-router.get('/count', async (req, res, next) => {
-  try {
-    const { status } = req.query;
-    const filter = {};
-    if (status && status !== 'all') filter.status = status;
-
-    const count = await Application.countDocuments(filter);
-    res.json({ success: true, data: { count } });
-  } catch (error) {
-    next(error);
-  }
-});
