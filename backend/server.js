@@ -19,7 +19,11 @@ connectDB();
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = ["http://localhost:3010", "http://localhost:3005"];
+      const allowedOrigins = [
+        "http://localhost:3010",
+        "http://localhost:3005",
+        "https://cms.conbellengineering.com", "https://conbellengineering.com"
+      ];
       if (
         !origin ||
         allowedOrigins.includes(origin) ||
