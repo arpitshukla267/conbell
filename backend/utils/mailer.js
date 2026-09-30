@@ -16,6 +16,59 @@ function getResendClient() {
   return resendInstance;
 }
 
+/* ───────────────────────── Branded email layout ───────────────────────── */
+
+// Logo must be a public https URL (email apps cannot load local files).
+// Set MAIL_LOGO_URL in the backend env to change it.
+const LOGO_URL =
+  process.env.MAIL_LOGO_URL || "https://cms.conbellengineering.com/icon.png";
+const BRAND_NAME = "Conbell Engineering";
+const BRAND_COLOR = "#0B1C30";
+
+// Wraps the email body in a header (logo + name) and footer.
+// Skips full HTML documents so nothing gets wrapped twice.
+function wrapEmailHtml(bodyHtml) {
+  if (/^\s*(<!doctype|<html)/i.test(bodyHtml)) return bodyHtml;
+
+  return `<!DOCTYPE html>
+<html>
+  <body style="margin:0;padding:0;background:#f4f7fa;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7fa;padding:24px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;">
+            <tr>
+              <td style="background:${BRAND_COLOR};padding:18px 24px;">
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="padding-right:12px;vertical-align:middle;">
+                      <img src="${LOGO_URL}" alt="${BRAND_NAME}" height="44" style="display:block;height:44px;width:auto;border:0;" />
+                    </td>
+                    <td style="vertical-align:middle;color:#ffffff;font-size:18px;font-weight:bold;">
+                      ${BRAND_NAME}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:28px 24px;color:#1e293b;font-size:14px;line-height:1.6;">
+                ${bodyHtml}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 24px;background:#f8fafc;color:#94a3b8;font-size:12px;text-align:center;">
+                &copy; ${new Date().getFullYear()} ${BRAND_NAME}. All rights reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
 /**
  * Reusable backend sendMail function using Resend
  *
@@ -26,6 +79,7 @@ function getResendClient() {
  * @param {string} [options.text] - Plain text body
  * @param {string} [options.from] - Sender override (must belong to a verified domain)
  * @param {string|string[]} [options.replyTo] - Reply-To address
+ * @param {boolean} [options.branded=true] - Wrap the body with the logo header/footer
  * @param {Array<{filename: string, content?: Buffer|string, path?: string, url?: string}>} [options.attachments]
  * @returns {Promise<{id: string, success: boolean}>}
  */
@@ -37,6 +91,7 @@ async function sendMail({
   attachments = [],
   from: fromOverride,
   replyTo,
+  branded = true,
 }) {
   const resend = getResendClient();
   const from =
@@ -54,7 +109,8 @@ async function sendMail({
 
   // Format message content
   const emailText = text || (html ? html.replace(/<[^>]*>?/gm, "") : "");
-  const emailHtml = html || (text ? text.replace(/\n/g, "<br/>") : "");
+  const rawHtml = html || (text ? text.replace(/\n/g, "<br/>") : "");
+  const emailHtml = branded ? wrapEmailHtml(rawHtml) : rawHtml;
 
   // Process attachments
   const formattedAttachments = [];
