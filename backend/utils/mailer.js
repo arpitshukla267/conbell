@@ -122,6 +122,8 @@ async function sendMail({
           );
         }
 
+        console.log("Attachment fetch:", filePathOrUrl, "->", res.status);
+
         if (!res.ok) {
           throw new Error(
             `Attachment "${filename}" could not be downloaded (HTTP ${res.status}). Please check that the file URL is publicly accessible.`,

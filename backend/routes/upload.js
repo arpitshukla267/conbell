@@ -38,6 +38,10 @@ const PUBLIC_EXTS = [".pdf", ".doc", ".docx"];
 const PUBLIC_MAX_BYTES = 5 * 1024 * 1024; // 5MB
 const ADMIN_MAX_BYTES = 15 * 1024 * 1024; // 15MB
 
+// Sections and file types that are stored on Cloudinary as "raw" documents
+const DOCUMENT_SECTIONS = ["resumes", "offer-letters"];
+const DOCUMENT_EXT_REGEX = /\.(pdf|docx?|zip)$/i;
+
 // Multer config for local temp storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
@@ -54,8 +58,8 @@ const upload = multer({ storage, limits: { fileSize: ADMIN_MAX_BYTES } });
 
 /* ---------- helpers ---------- */
 
-// Token valid ho to req.isAdmin = true. Yaha reject nahi karta,
-// kyunki section multer ke baad hi pata chalta hai.
+// Sets req.isAdmin = true when a valid admin token is present.
+// It does not reject here, because the section is only known after multer runs.
 async function detectAdmin(req, res, next) {
   req.isAdmin = false;
   try {
@@ -67,7 +71,7 @@ async function detectAdmin(req, res, next) {
       if (admin && admin.tokenVersion === payload.v) req.isAdmin = true;
     }
   } catch {
-    /* invalid token = admin nahi */
+    /* invalid token = not an admin */
   }
   next();
 }
@@ -106,7 +110,7 @@ router.post("/", detectAdmin, upload.any(), async (req, res, next) => {
     const section = safeSegment(req.body.section);
     const identifier = safeSegment(req.body.identifier);
 
-    // Section whitelist (section diya hai to valid hona chahiye)
+    // Section whitelist (if a section is provided, it must be valid)
     if (section && !ALLOWED_SECTIONS.includes(section)) {
       removeFiles(files);
       return res
@@ -114,7 +118,7 @@ router.post("/", detectAdmin, upload.any(), async (req, res, next) => {
         .json({ success: false, error: "Invalid upload section" });
     }
 
-    // Admin nahi hai to sirf resumes upload kar sakta hai
+    // Non-admin users may only upload resumes
     if (!req.isAdmin) {
       if (section !== PUBLIC_SECTION) {
         removeFiles(files);
@@ -123,25 +127,21 @@ router.post("/", detectAdmin, upload.any(), async (req, res, next) => {
       const ext = path.extname(file.originalname).toLowerCase();
       if (!PUBLIC_EXTS.includes(ext)) {
         removeFiles(files);
-        return res
-          .status(400)
-          .json({
-            success: false,
-            error: "Only DOCX and word files allowed for resumes",
-          });
+        return res.status(400).json({
+          success: false,
+          error: "Only PDF, DOC or DOCX files are allowed for resumes.",
+        });
       }
       if (file.size > PUBLIC_MAX_BYTES) {
         removeFiles(files);
-        return res
-          .status(400)
-          .json({
-            success: false,
-            error: "File size should not exceed 5MB",
-          });
+        return res.status(400).json({
+          success: false,
+          error: "File size should not exceed 5MB.",
+        });
       }
     }
 
-    // Sirf pehli file use hoti hai, baaki extra files delete
+    // Only the first file is used; delete any extra files
     removeFiles(files.filter((f) => f !== file));
 
     let folderPath = "conbell";
@@ -149,12 +149,19 @@ router.post("/", detectAdmin, upload.any(), async (req, res, next) => {
     else if (section) folderPath = `conbell/${section}`;
 
     if (process.env.CLOUDINARY_CLOUD_NAME) {
+      // Documents (resumes, offer letters, PDF/DOC/ZIP) are stored as "raw"
+      // so Cloudinary's image delivery restrictions do not apply to them.
+      const isDocument =
+        DOCUMENT_SECTIONS.includes(section) ||
+        DOCUMENT_EXT_REGEX.test(file.originalname);
+
       const result = await cloudinary.uploader.upload(file.path, {
         folder: folderPath,
-        resource_type: "auto",
+        resource_type: isDocument ? "raw" : "auto",
+        ...(isDocument ? { use_filename: true, unique_filename: true } : {}),
       });
 
-      fs.unlinkSync(file.path); // local temp file hatao
+      fs.unlinkSync(file.path); // remove the local temp file
       return res.json({ success: true, url: result.secure_url });
     }
 
