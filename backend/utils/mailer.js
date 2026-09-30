@@ -2,6 +2,36 @@ const { Resend } = require("resend");
 const fs = require("fs");
 const path = require("path");
 
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Downloads a Cloudinary asset through the Admin/API endpoint,
+// which is not affected by public delivery restrictions.
+async function fetchFromCloudinaryApi(url) {
+  const m = url.match(
+    /res\.cloudinary\.com\/[^/]+\/(image|raw|video)\/(upload|authenticated|private)\/(?:v\d+\/)?(.+)$/,
+  );
+  if (!m) return null;
+
+  const [, resourceType, type, rest] = m;
+  const decoded = decodeURIComponent(rest.split("?")[0]);
+  const isRaw = resourceType === "raw";
+  const publicId = isRaw ? decoded : decoded.replace(/\.[^/.]+$/, "");
+  const format = isRaw ? "" : decoded.split(".").pop();
+
+  const apiUrl = cloudinary.utils.private_download_url(publicId, format, {
+    resource_type: resourceType,
+    type,
+    expires_at: Math.floor(Date.now() / 1000) + 300,
+  });
+  return fetch(apiUrl);
+}
+
 let resendInstance = null;
 
 function getResendClient() {
@@ -112,6 +142,14 @@ async function sendMail({
         let res;
         try {
           res = await fetch(filePathOrUrl);
+
+          if (!res.ok) {
+            const viaApi = await fetchFromCloudinaryApi(filePathOrUrl);
+
+            if (viaApi) {
+              res = viaApi;
+            }
+          }
         } catch (fetchErr) {
           console.error(
             `Failed to fetch attachment from ${filePathOrUrl}:`,
