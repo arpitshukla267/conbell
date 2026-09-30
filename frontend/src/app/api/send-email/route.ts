@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const DEFAULT_RECIPIENT = "shuklaarpit440@gmail.com";
-const DEFAULT_SENDER = "Conbell Engineering <onboarding@resend.dev>";
 
 interface EmailRequestBody {
   name?: string;
@@ -58,8 +56,8 @@ export async function POST(req: Request) {
     }
 
     const resend = new Resend(apiKey);
-    const recipientEmail = process.env.RECIPIENT_EMAIL || DEFAULT_RECIPIENT;
-    const senderEmail = process.env.RESEND_FROM_EMAIL || DEFAULT_SENDER;
+    const recipientEmail = process.env.RECIPIENT_EMAIL ;
+    const senderEmail = process.env.RESEND_FROM_EMAIL ;
 
     if (!recipientEmail || !senderEmail) {
       return NextResponse.json(
