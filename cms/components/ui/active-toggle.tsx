@@ -28,12 +28,12 @@ export function ActiveToggle({
         e.preventDefault();
         onToggle();
       }}
-      className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-purple-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed group"
+      className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#00355F] transition-colors disabled:opacity-60 disabled:cursor-not-allowed group"
       title={active ? "Hide from site" : "Show on site"}
     >
       <span className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center">
         {loading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-purple-500" />
+          <Loader2 className="h-5 w-5 animate-spin text-[#00355F]" />
         ) : (
           <>
             <ToggleRight
@@ -53,7 +53,7 @@ export function ActiveToggle({
         <span
           className={`text-[11px] transition-colors duration-200 ${
             active ? "text-emerald-700" : "text-slate-500"
-          } group-hover:text-purple-600`}
+          } group-hover:text-[#00355F]`}
         >
           {loading ? "Updating…" : active ? "Active" : "Hidden"}
         </span>

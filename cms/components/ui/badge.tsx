@@ -13,7 +13,8 @@ export function Badge({ children, variant = "default", className }: BadgeProps) 
     warning: "bg-amber-50 text-amber-700 border border-amber-200/60",
     destructive: "bg-rose-50 text-rose-700 border border-rose-200/60",
     outline: "border border-slate-200 text-slate-600 bg-white",
-    purple: "bg-purple-50 text-purple-700 border border-purple-200/60",
+    purple: "bg-[#EEF4FF] text-[#00355F] border border-[#B2CDFA]/60",
+    navy: "bg-[#EEF4FF] text-[#00355F] border border-[#B2CDFA]/60",
   };
   return (
     <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide", variants[variant], className)}>

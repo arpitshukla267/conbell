@@ -20,9 +20,9 @@ export function Button({
 }: ButtonProps) {
   const base = "inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
   const variants = {
-    default: "bg-purple-600 text-white hover:bg-purple-700 shadow-sm shadow-purple-600/25",
-    purple: "bg-purple-600 text-white hover:bg-purple-700 shadow-sm shadow-purple-600/25",
-    outline: "border border-slate-200 text-slate-700 bg-white hover:bg-purple-50/50 hover:border-purple-200 hover:text-purple-700 shadow-xs",
+    default: "bg-[#00355F] text-white hover:bg-[#0b2640] shadow-sm shadow-[#00355F]/25",
+    purple: "bg-[#00355F] text-white hover:bg-[#0b2640] shadow-sm shadow-[#00355F]/25",
+    outline: "border border-slate-200 text-slate-700 bg-white hover:bg-[#EEF4FF]/50 hover:border-[#B2CDFA] hover:text-[#00355F] shadow-xs",
     ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
     destructive: "bg-rose-500 text-white hover:bg-rose-600 shadow-sm shadow-rose-500/20",
     success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm shadow-emerald-600/20",

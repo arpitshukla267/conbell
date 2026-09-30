@@ -1,14 +1,20 @@
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3005";
+const FRONTEND = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
 
-/** Resolve stored image/PDF paths for CMS previews. */
+/**
+ * Resolve stored image/PDF paths for CMS previews.
+ *
+ * - Full URLs (http/https) → returned as-is (Cloudinary, external)
+ * - /uploads/*              → served by the backend API server
+ * - Any other /path         → served by the frontend (lives in frontend/public/)
+ */
 export function resolveMediaUrl(src: string): string {
   if (!src) return src;
   if (src.startsWith("http://") || src.startsWith("https://")) return src;
   if (src.startsWith("/uploads/")) return `${API}${src}`;
-  if (src.startsWith("/images/") || src.startsWith("/brochure/") || src.startsWith("/logo")) {
-    return `${SITE}${src}`;
-  }
+  // All other local paths (e.g. /hero/hero1.webp, /products/..., /clients/logos/...)
+  // live inside frontend/public/ and are served by the frontend dev server.
+  if (src.startsWith("/")) return `${FRONTEND}${src}`;
   return src;
 }
 

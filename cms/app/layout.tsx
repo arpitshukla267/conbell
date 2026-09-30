@@ -1,27 +1,27 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 
-const poppins = Poppins({
+const manrope = Manrope({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-poppins",
+  variable: "--font-manrope",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Videha Overseas — CMS",
-  description: "Content Management System for Videha Overseas website",
+  title: "Conbell Engineering — CMS",
+  description: "Content Management System for Conbell Engineering website",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={poppins.variable}>
+    <html lang="en" className={manrope.variable}>
       <body className="font-sans antialiased">
         {children}
         <Toaster position="top-right" richColors />
       </body>
-    </html>
+      </html>
   );
 }

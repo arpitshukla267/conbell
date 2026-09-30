@@ -19,7 +19,7 @@ export function Input({ label, error, hint, className, id, ...props }: InputProp
       <input
         id={inputId}
         className={cn(
-          "border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/25 focus:border-purple-500 transition-all shadow-2xs",
+          "border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-[#00355F]/25 focus:border-[#00355F] transition-all shadow-2xs",
           error && "border-rose-400 focus:ring-rose-400",
           className
         )}
@@ -50,7 +50,7 @@ export function Textarea({ label, error, hint, className, id, ...props }: Textar
         id={inputId}
         rows={4}
         className={cn(
-          "border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/25 focus:border-purple-500 transition-all resize-none shadow-2xs",
+          "border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-[#00355F]/25 focus:border-[#00355F] transition-all resize-none shadow-2xs",
           error && "border-rose-400 focus:ring-rose-400",
           className
         )}

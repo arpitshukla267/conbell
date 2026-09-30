@@ -131,7 +131,7 @@ export function ContentManager<T extends { _id: string; isActive?: boolean; orde
         title={title}
         description={description}
         action={
-          <Button onClick={openNew} size="lg" className="shadow-md shadow-purple-600/20">
+          <Button onClick={openNew} size="lg" className="shadow-md shadow-[#00355F]/20">
             <Plus className="w-4 h-4" /> Add Item
           </Button>
         }
@@ -139,12 +139,12 @@ export function ContentManager<T extends { _id: string; isActive?: boolean; orde
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-7 h-7 animate-spin text-purple-600" />
+          <Loader2 className="w-7 h-7 animate-spin text-[#00355F]" />
         </div>
       ) : (
         <div className={`grid ${gridCols}`}>
           {items.map((item) => (
-            <Card key={item._id} className="overflow-hidden flex flex-col justify-between group hover:border-purple-300 hover:shadow-md transition-all duration-200">
+            <Card key={item._id} className="overflow-hidden flex flex-col justify-between group hover:border-[#B2CDFA] hover:shadow-md transition-all duration-200">
               <CardBody className="p-5">
                 {renderRow(item)}
               </CardBody>

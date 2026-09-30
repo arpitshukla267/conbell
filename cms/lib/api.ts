@@ -1,15 +1,31 @@
 import type { UploadContext } from "./upload-context";
+import { getToken, clearToken } from "./auth";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-async function req<T>(
-  path: string,
-  options?: RequestInit
-): Promise<T> {
+function handleUnauthorized() {
+  clearToken();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("cms-logout"));
+  }
+}
+
+async function req<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getToken();
   const res = await fetch(`${API}${path}`, {
-    headers: { "Content-Type": "application/json", ...options?.headers },
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
   });
+
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error("Session expired, dobara login karo");
+  }
+
   const json = await res.json();
   if (!json.success) throw new Error(json.error || "API error");
   return json.data as T;
@@ -17,109 +33,163 @@ async function req<T>(
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type QualityParam = { label: string; value: string };
+export type Spec = { label: string; value: string };
 
 export type Product = {
   _id: string;
-  index: string;
   slug: string;
-  name: string;
-  image: string;
-  copy: string;
-  meta: string[];
-  grade: string;
-  format: string;
-  application: string;
-  packaging: string;
-  tagline: string;
+  title: string;
+  category: string;
+  badge: string;
   description: string;
-  origin: string;
-  gradeSize: string;
-  appearance: string;
-  moisture: string;
-  qualityParameters: QualityParam[];
-  packagingOptions: string;
-  moq: string;
-  shelfLife: string;
-  privateLabel: string;
-  bulkSupply: string;
-  exportMarkets: string;
-  sampleAvailability: string;
-  processingSteps: string[];
+  longDescription: string;
+  features: string[];
+  image: string;
+  gallery: string[];
+  specs: Spec[];
   isActive: boolean;
   order: number;
 };
 
-export type HeroStory = {
+export type HeroSlide = {
   _id: string;
-  id: string;
-  number: string;
-  label: string;
-  heading: [string, string];
-  description: string;
-  image: string;
-  mobileImage?: string;
-  alt: string;
-  ctaLabel?: string;
-  ctaHref?: string;
+  heading: string;
+  accentHeading: string;
+  subtext: string;
+  imageDesktop: string;
+  imageMobile: string;
   isActive: boolean;
   order: number;
 };
 
 export type ProcessStep = {
   _id: string;
-  num: string;
-  label: string;
-  heading: string;
-  copy: string;
-  image: string;
+  number: string;
+  title: string;
+  description: string;
+  highlights: string[];
   isActive: boolean;
   order: number;
 };
 
 export type QualityPoint = {
   _id: string;
+  number: string;
   title: string;
-  copy: string;
-  isActive: boolean;
-  order: number;
-};
-
-export type Market = {
-  _id: string;
-  marketId: string;
-  name: string;
-  x: number;
-  y: number;
-  info: string;
+  description: string;
   isActive: boolean;
   order: number;
 };
 
 export type Service = {
   _id: string;
-  num: string;
+  slug: string;
+  category: string;
+  badge: string;
   title: string;
-  copy: string;
-  detail: string;
+  shortTitle: string;
+  description: string;
+  contribution: string;
+  specs: Spec[];
+  image: string;
   isActive: boolean;
   order: number;
 };
 
-export type BuyerExpectation = {
+export type Faq = {
   _id: string;
-  title: string;
-  copy: string;
-  isActive: boolean;
+  question: string;
+  answer: string;
   order: number;
+  isActive: boolean;
 };
 
-export type IntroFact = {
+export type Client = {
   _id: string;
-  value: string;
-  label: string;
-  isActive: boolean;
+  name: string;
+  logo: string;
   order: number;
+  isActive: boolean;
+};
+
+export type Job = {
+  _id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  experience: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+  order: number;
+  isActive: boolean;
+  createdAt?: string;
+};
+
+export type RecruitmentHistoryItem = {
+  _id?: string;
+  action: string;
+  fromStatus?: string;
+  toStatus?: string;
+  details?: Record<string, any>;
+  email?: {
+    to: string;
+    subject: string;
+    body: string;
+    hasAttachment?: boolean;
+    attachmentName?: string;
+    attachmentUrl?: string;
+    messageId?: string;
+    sentAt?: string;
+  };
+  performedBy: string;
+  timestamp: string;
+};
+
+export type InterviewDetails = {
+  date?: string;
+  time?: string;
+  mode?: string;
+  location?: string;
+  notes?: string;
+  scheduledAt?: string;
+  scheduledBy?: string;
+};
+
+export type HiringDetails = {
+  hiredAt?: string;
+  hiredBy?: string;
+  offerLetterUrl?: string;
+  offerLetterName?: string;
+};
+
+export type ApplicationStatus =
+  | "pending"
+  | "reviewed"
+  | "shortlisted"
+  | "interview"
+  | "interview_taken"
+  | "hired"
+  | "accepted"
+  | "rejected";
+
+export type Application = {
+  _id: string;
+  jobId?: { _id: string; title: string; department?: string } | string;
+  jobTitle: string;
+  applicantName: string;
+  email: string;
+  phone: string;
+  resumeUrl: string;
+  message: string;
+  experience: string;
+  status: ApplicationStatus;
+  interviewDetails?: InterviewDetails;
+  hiringDetails?: HiringDetails;
+  history?: RecruitmentHistoryItem[];
+  createdAt: string;
+  updatedAt?: string;
 };
 
 // ─── Products ─────────────────────────────────────────────────────────────────
@@ -127,24 +197,52 @@ export const productsApi = {
   list: () => req<Product[]>("/api/products/all"),
   get: (slug: string) => req<Product>(`/api/products/${slug}`),
   create: (data: Partial<Product>) =>
-    req<Product>("/api/products", { method: "POST", body: JSON.stringify(data) }),
+    req<Product>("/api/products", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
   update: (id: string, data: Partial<Product>) =>
-    req<Product>(`/api/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    req<Product>(`/api/products/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
   toggle: (id: string) =>
     req<Product>(`/api/products/${id}/toggle`, { method: "PATCH" }),
   delete: (id: string) =>
     req<{ message: string }>(`/api/products/${id}`, { method: "DELETE" }),
 };
 
+// ─── Services ─────────────────────────────────────────────────────────────────
+export const servicesApi = {
+  list: () => req<Service[]>("/api/services/all"),
+  create: (data: Partial<Service>) =>
+    req<Service>("/api/services", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: Partial<Service>) =>
+    req<Service>(`/api/services/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  toggle: (id: string) =>
+    req<Service>(`/api/services/${id}/toggle`, { method: "PATCH" }),
+  delete: (id: string) =>
+    req<{ message: string }>(`/api/services/${id}`, { method: "DELETE" }),
+};
+
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 export const heroApi = {
-  list: () => req<HeroStory[]>("/api/hero/all"),
-  create: (data: Partial<HeroStory>) =>
-    req<HeroStory>("/api/hero", { method: "POST", body: JSON.stringify(data) }),
-  update: (id: string, data: Partial<HeroStory>) =>
-    req<HeroStory>(`/api/hero/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  list: () => req<HeroSlide[]>("/api/hero/all"),
+  create: (data: Partial<HeroSlide>) =>
+    req<HeroSlide>("/api/hero", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: Partial<HeroSlide>) =>
+    req<HeroSlide>(`/api/hero/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
   toggle: (id: string) =>
-    req<HeroStory>(`/api/hero/${id}/toggle`, { method: "PATCH" }),
+    req<HeroSlide>(`/api/hero/${id}/toggle`, { method: "PATCH" }),
   delete: (id: string) =>
     req<{ message: string }>(`/api/hero/${id}`, { method: "DELETE" }),
 };
@@ -154,22 +252,26 @@ function contentApi<T>(segment: string) {
   return {
     list: () => req<T[]>(`/api/content/${segment}/all`),
     create: (data: Partial<T>) =>
-      req<T>(`/api/content/${segment}`, { method: "POST", body: JSON.stringify(data) }),
+      req<T>(`/api/content/${segment}`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
     update: (id: string, data: Partial<T>) =>
-      req<T>(`/api/content/${segment}/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+      req<T>(`/api/content/${segment}/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
     toggle: (id: string) =>
       req<T>(`/api/content/${segment}/${id}/toggle`, { method: "PATCH" }),
     delete: (id: string) =>
-      req<{ message: string }>(`/api/content/${segment}/${id}`, { method: "DELETE" }),
+      req<{ message: string }>(`/api/content/${segment}/${id}`, {
+        method: "DELETE",
+      }),
   };
 }
 
 export const processStepsApi = contentApi<ProcessStep>("process-steps");
 export const qualityPointsApi = contentApi<QualityPoint>("quality-points");
-export const marketsApi = contentApi<Market>("markets");
-export const servicesApi = contentApi<Service>("services");
-export const buyerExpectationsApi = contentApi<BuyerExpectation>("buyer-expectations");
-export const introFactsApi = contentApi<IntroFact>("intro-facts");
 
 // ─── Site settings (config keys) ─────────────────────────────────────────────
 export const siteSettingsApi = {
@@ -181,11 +283,123 @@ export const siteSettingsApi = {
     }),
 };
 
+// ─── FAQs ─────────────────────────────────────────────────────────────────────
+export const faqsApi = {
+  list: () => req<Faq[]>("/api/faqs/all"),
+  create: (data: Partial<Faq>) =>
+    req<Faq>("/api/faqs", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: Partial<Faq>) =>
+    req<Faq>(`/api/faqs/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  toggle: (id: string) =>
+    req<Faq>(`/api/faqs/${id}/toggle`, { method: "PATCH" }),
+  delete: (id: string) =>
+    req<{ message: string }>(`/api/faqs/${id}`, { method: "DELETE" }),
+};
+
+// ─── Clients ──────────────────────────────────────────────────────────────────
+export const clientsApi = {
+  list: () => req<Client[]>("/api/clients/all"),
+  create: (data: Partial<Client>) =>
+    req<Client>("/api/clients", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: Partial<Client>) =>
+    req<Client>(`/api/clients/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  toggle: (id: string) =>
+    req<Client>(`/api/clients/${id}/toggle`, { method: "PATCH" }),
+  delete: (id: string) =>
+    req<{ message: string }>(`/api/clients/${id}`, { method: "DELETE" }),
+};
+
+// ─── Jobs / Vacancies ─────────────────────────────────────────────────────────
+export const jobsApi = {
+  list: () => req<Job[]>("/api/jobs/all"),
+  get: (id: string) => req<Job>(`/api/jobs/${id}`),
+  create: (data: Partial<Job>) =>
+    req<Job>("/api/jobs", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: Partial<Job>) =>
+    req<Job>(`/api/jobs/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  toggle: (id: string) =>
+    req<Job>(`/api/jobs/${id}/toggle`, { method: "PATCH" }),
+  delete: (id: string) =>
+    req<{ message: string }>(`/api/jobs/${id}`, { method: "DELETE" }),
+};
+
+// ─── Job Applications / Responses ─────────────────────────────────────────────
+export const applicationsApi = {
+  list: (status?: string) =>
+    req<Application[]>(
+      `/api/applications/all${status ? `?status=${status}` : ""}`,
+    ),
+  get: (id: string) => req<Application>(`/api/applications/${id}`),
+  updateStatus: (id: string, status: string, performedBy?: string) =>
+    req<Application>(`/api/applications/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status, performedBy }),
+    }),
+  scheduleInterview: (
+    id: string,
+    data: {
+      date: string;
+      time: string;
+      mode: string;
+      location: string;
+      notes?: string;
+      sendEmailNotification: boolean;
+      email?: { to: string; subject: string; message: string };
+      performedBy?: string;
+    },
+  ) =>
+    req<Application>(`/api/applications/${id}/schedule-interview`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  markInterviewTaken: (
+    id: string,
+    data?: { notes?: string; performedBy?: string },
+  ) =>
+    req<Application>(`/api/applications/${id}/interview-taken`, {
+      method: "POST",
+      body: JSON.stringify(data || {}),
+    }),
+  hire: (
+    id: string,
+    data: {
+      sendEmailNotification?: boolean;
+      email?: {
+        to: string;
+        subject: string;
+        message: string;
+      };
+      offerLetterUrl?: string;
+      offerLetterName?: string;
+      performedBy?: string;
+    },
+  ) =>
+    req<Application>(`/api/applications/${id}/hire`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  reject: (id: string, data?: { reason?: string; performedBy?: string }) =>
+    req<Application>(`/api/applications/${id}/reject`, {
+      method: "POST",
+      body: JSON.stringify(data || {}),
+    }),
+  delete: (id: string) =>
+    req<{ message: string }>(`/api/applications/${id}`, { method: "DELETE" }),
+};
+
 // ─── Upload ───────────────────────────────────────────────────────────────────
 
-export async function uploadFile(file: File, context: UploadContext): Promise<string> {
+export async function uploadFile(
+  file: File,
+  context: UploadContext,
+): Promise<string> {
   if (!context.identifier?.trim()) {
-    throw new Error("Save a slug or ID before uploading so the image is named correctly.");
+    throw new Error(
+      "Save a slug or ID before uploading so the image is named correctly.",
+    );
   }
 
   const form = new FormData();
@@ -194,15 +408,33 @@ export async function uploadFile(file: File, context: UploadContext): Promise<st
   form.append("identifier", context.identifier.trim());
   form.append("field", context.field || "main");
 
-  const res = await fetch(`${API}/api/upload`, { method: "POST", body: form });
+  // FormData ke saath Content-Type khud set mat karna, browser boundary ke saath lagata hai
+  const token = getToken();
+  const res = await fetch(`${API}/api/upload`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error("Session expired, dobara login karo");
+  }
+
   const json = await res.json();
   if (!json.success) throw new Error(json.error || "Upload failed");
   return json.url as string;
 }
 
 /** @deprecated use uploadFile with UploadContext */
-export async function uploadImage(file: File, context?: UploadContext): Promise<string> {
-  return uploadFile(file, context || { section: "assets", identifier: "misc", field: "file" });
+export async function uploadImage(
+  file: File,
+  context?: UploadContext,
+): Promise<string> {
+  return uploadFile(
+    file,
+    context || { section: "assets", identifier: "misc", field: "file" },
+  );
 }
 
 // ─── Health ───────────────────────────────────────────────────────────────────

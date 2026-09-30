@@ -2,27 +2,28 @@
 import { ContentManager } from "@/components/content-manager";
 import { qualityPointsApi, type QualityPoint } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, Award, CheckCircle2 } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export default function QualityPointsPage() {
   return (
     <ContentManager<QualityPoint>
-      title="Quality Assurance Points"
-      description="Quality factors and grade consistency standards displayed in the Quality section."
+      title="Quality Standards & Policy"
+      description="Quality assurance principles and ISO-aligned standards displayed in the Quality Policy section."
       gridCols="grid-cols-1 md:grid-cols-2 gap-6"
       api={qualityPointsApi}
-      emptyDefaults={{ title: "", copy: "", isActive: true, order: 0 }}
+      emptyDefaults={{ number: "01", title: "", description: "", isActive: true, order: 0 }}
       fields={[
-        { key: "title", label: "Title", type: "text", span: "full", placeholder: "Size & colour consistency" },
-        { key: "copy", label: "Copy", type: "textarea", span: "full", rows: 3 },
+        { key: "number", label: "Number", type: "text", placeholder: "01" },
+        { key: "title", label: "Title", type: "text", span: "full", placeholder: "Precision, Reliability & Durability" },
+        { key: "description", label: "Description", type: "textarea", span: "full", rows: 3 },
         { key: "order", label: "Order", type: "number" },
       ]}
       renderRow={(item) => (
         <div className="space-y-3">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-[#EEF4FF] text-[#00355F] border border-[#B2CDFA]/50 flex items-center justify-center shrink-0 font-bold font-mono text-sm">
+                {item.number || "01"}
               </div>
               <h3 className="font-bold text-slate-900 text-sm line-clamp-1">{item.title}</h3>
             </div>
@@ -30,12 +31,11 @@ export default function QualityPointsPage() {
               {item.isActive ? "Active" : "Hidden"}
             </Badge>
           </div>
-          <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed pl-12">
-            {item.copy || "No description provided."}
+          <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed pl-13">
+            {item.description || "No description provided."}
           </p>
         </div>
       )}
     />
   );
 }
-

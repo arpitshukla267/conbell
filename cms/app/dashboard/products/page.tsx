@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { productsApi, type Product } from "@/lib/api";
+import { productsApi, type Product, type Spec } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
@@ -10,17 +10,31 @@ import { resolveMediaUrl } from "@/lib/media-url";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardBody } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, GripVertical, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Package } from "lucide-react";
 import { ActiveToggle } from "@/components/ui/active-toggle";
 import { optimisticToggle } from "@/lib/optimistic-toggle";
 
+const CATEGORIES = [
+  { value: "conveyor", label: "Conveyor" },
+  { value: "structural", label: "Structural" },
+  { value: "safety", label: "Safety" },
+  { value: "fabrication", label: "Fabrication" },
+  { value: "project", label: "Turnkey Projects" },
+];
+
 const EMPTY: Partial<Product> = {
-  index: "", slug: "", name: "", image: "", copy: "",
-  meta: [], grade: "", format: "", application: "", packaging: "",
-  tagline: "", description: "", origin: "", gradeSize: "", appearance: "",
-  moisture: "", qualityParameters: [], packagingOptions: "", moq: "",
-  shelfLife: "", privateLabel: "", bulkSupply: "", exportMarkets: "",
-  sampleAvailability: "", processingSteps: [], isActive: true, order: 0,
+  slug: "",
+  title: "",
+  category: "conveyor",
+  badge: "",
+  description: "",
+  longDescription: "",
+  features: [],
+  image: "",
+  gallery: [],
+  specs: [],
+  isActive: true,
+  order: 0,
 };
 
 function slugify(s: string) {
@@ -51,7 +65,7 @@ export default function ProductsPage() {
   useEffect(() => { load(); }, [load]);
 
   function openNew() {
-    setEditing({ ...EMPTY, order: products.length + 1, index: String(products.length + 1).padStart(2, "0") });
+    setEditing({ ...EMPTY, order: products.length + 1 });
     setModalOpen(true);
   }
 
@@ -60,13 +74,17 @@ export default function ProductsPage() {
     setModalOpen(true);
   }
 
+  function setField<K extends keyof Product>(key: K, value: Product[K]) {
+    setEditing((prev) => ({ ...prev, [key]: value }));
+  }
+
   async function save() {
-    if (!editing.name) { toast.error("Product name is required"); return; }
+    if (!editing.title) { toast.error("Product title is required"); return; }
     setSaving(true);
     try {
       const payload = {
         ...editing,
-        slug: editing.slug || slugify(editing.name || ""),
+        slug: editing.slug || slugify(editing.title || ""),
       };
       if (editing._id) {
         await productsApi.update(editing._id, payload);
@@ -107,17 +125,15 @@ export default function ProductsPage() {
     }
   }
 
-  function setField<K extends keyof Product>(key: K, value: Product[K]) {
-    setEditing((prev) => ({ ...prev, [key]: value }));
-  }
+  const productIdentifier = editing.slug || slugify(editing.title || "") || "new-product";
 
   return (
     <div>
       <PageHeader
         title="Products Catalogue"
-        description="Manage your product catalogue — makhana products, specifications, and commercial details."
+        description="Manage engineered structural components, fabrication products, and project specifications."
         action={
-          <Button onClick={openNew} size="lg" className="shadow-md shadow-purple-600/20">
+          <Button onClick={openNew} size="lg" className="shadow-md shadow-[#00355F]/20">
             <Plus className="w-4 h-4" /> Add Product
           </Button>
         }
@@ -125,20 +141,19 @@ export default function ProductsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-7 h-7 animate-spin text-purple-600" />
+          <Loader2 className="w-7 h-7 animate-spin text-[#00355F]" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((p) => (
-            <Card key={p._id} className="overflow-hidden flex flex-col justify-between group hover:border-purple-300 hover:shadow-lg transition-all duration-200">
+            <Card key={p._id} className="overflow-hidden flex flex-col justify-between group hover:border-[#B2CDFA] hover:shadow-lg transition-all duration-200">
               <div>
-                {/* Product Image Header Container */}
                 <div className="relative h-48 w-full bg-slate-100 overflow-hidden border-b border-slate-100">
                   {p.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={resolveMediaUrl(p.image)}
-                      alt={p.name}
+                      alt={p.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                     />
@@ -148,12 +163,12 @@ export default function ProductsPage() {
                     </div>
                   )}
 
-                  {/* Index badge top left */}
-                  {/* <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] px-2.5 py-1 rounded-full font-semibold">
-                    {p.index || "00"}
-                  </div> */}
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2.5 py-1 rounded-md bg-[#00355F] text-white text-[11px] font-semibold uppercase tracking-wider">
+                      {p.category}
+                    </span>
+                  </div>
 
-                  {/* Active / Hidden status top right */}
                   <div className="absolute top-3 right-3">
                     <Badge variant={p.isActive ? "success" : "warning"}>
                       {p.isActive ? "Active" : "Hidden"}
@@ -161,36 +176,29 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                {/* Card Content Body */}
                 <CardBody className="p-5 space-y-3">
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base group-hover:text-purple-600 transition-colors line-clamp-1">
-                      {p.name}
+                    <h3 className="font-bold text-slate-900 text-base group-hover:text-[#00355F] transition-colors line-clamp-1">
+                      {p.title}
                     </h3>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                      {p.copy || p.tagline || "No description provided."}
+                      {p.description || "No short description."}
                     </p>
                   </div>
 
-                  {/* Meta tags chips */}
-                  {p.meta && p.meta.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {p.meta.slice(0, 3).map((m) => (
-                        <span key={m} className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 text-[10px] font-medium border border-purple-100">
-                          {m}
-                        </span>
+                  {p.specs && p.specs.length > 0 && (
+                    <div className="space-y-1 pt-1 border-t border-slate-100">
+                      {p.specs.slice(0, 3).map((s, idx) => (
+                        <div key={idx} className="flex justify-between text-[11px] text-slate-600">
+                          <span className="font-medium text-slate-400">{s.label}:</span>
+                          <span className="truncate max-w-[150px]">{s.value}</span>
+                        </div>
                       ))}
-                      {p.meta.length > 3 && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-medium">
-                          +{p.meta.length - 3}
-                        </span>
-                      )}
                     </div>
                   )}
                 </CardBody>
               </div>
 
-              {/* Action Bar Footer */}
               <div className="px-5 py-3.5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between">
                 <ActiveToggle
                   active={Boolean(p.isActive)}
@@ -217,103 +225,103 @@ export default function ProductsPage() {
         <div className="flex flex-col gap-6">
           {/* Basic */}
           <section className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
-            <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">Basic Information</h3>
+            <h3 className="text-xs font-bold text-[#00355F] uppercase tracking-widest">Basic Information</h3>
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Index" value={editing.index || ""} onChange={(e) => setField("index", e.target.value)} placeholder="01" />
               <Input
-                label="Slug"
+                label="Product Title"
+                value={editing.title || ""}
+                onChange={(e) => {
+                  setField("title", e.target.value);
+                  if (!editing._id) setField("slug", slugify(e.target.value));
+                }}
+                placeholder="e.g. Conveyor Structure"
+                className="col-span-2"
+              />
+              <Input
+                label="Slug (URL ID)"
                 value={editing.slug || ""}
                 onChange={(e) => setField("slug", e.target.value)}
-                hint="Auto-generated from name if blank"
-                placeholder="raw-plain-makhana"
+                placeholder="conveyor-structure"
               />
-              <Input label="Name" value={editing.name || ""} onChange={(e) => {
-                setField("name", e.target.value);
-                if (!editing._id) setField("slug", slugify(e.target.value));
-              }} className="col-span-2" />
-              <Input label="Tagline" value={editing.tagline || ""} onChange={(e) => setField("tagline", e.target.value)} className="col-span-2" />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Category</label>
+                <select
+                  value={editing.category || "conveyor"}
+                  onChange={(e) => setField("category", e.target.value)}
+                  className="border border-slate-200/90 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#00355F]/25 focus:border-[#00355F] transition-all"
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
+              </div>
+              <Input
+                label="Badge"
+                value={editing.badge || ""}
+                onChange={(e) => setField("badge", e.target.value)}
+                placeholder="e.g. Heavy Duty, Safety, Structural"
+                className="col-span-2"
+              />
             </div>
           </section>
 
-          {/* Image */}
+          {/* Product Image */}
           <section className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
-            <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">Product Image</h3>
+            <h3 className="text-xs font-bold text-[#00355F] uppercase tracking-widest">Main Cover Image</h3>
             <ImageUpload
               value={editing.image || ""}
               onChange={(url) => setField("image", url)}
-              hint="Uploaded to Cloudinary as products/{slug}/main"
               uploadContext={{
                 section: "products",
-                identifier: editing.slug || slugify(editing.name || "") || "new-product",
+                identifier: productIdentifier,
                 field: "main",
               }}
             />
           </section>
 
-          {/* Listing Card Copy */}
+          {/* Card & Detail Descriptions */}
           <section className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
-            <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">Listing Card Details</h3>
+            <h3 className="text-xs font-bold text-[#00355F] uppercase tracking-widest">Descriptions</h3>
             <div className="flex flex-col gap-3">
-              <Textarea label="Copy (card description)" value={editing.copy || ""} onChange={(e) => setField("copy", e.target.value)} rows={2} />
-              <Input
-                label="Meta tags (comma separated)"
-                value={(editing.meta || []).join(", ")}
-                onChange={(e) => setField("meta", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                placeholder="Raw / Plain, Bulk Supply, Size Graded"
+              <Textarea
+                label="Short Description (Card)"
+                value={editing.description || ""}
+                onChange={(e) => setField("description", e.target.value)}
+                placeholder="Short 1-2 line summary for card view..."
+                rows={2}
               />
-              <div className="grid grid-cols-2 gap-3">
-                <Input label="Grade" value={editing.grade || ""} onChange={(e) => setField("grade", e.target.value)} />
-                <Input label="Format" value={editing.format || ""} onChange={(e) => setField("format", e.target.value)} />
-                <Input label="Application" value={editing.application || ""} onChange={(e) => setField("application", e.target.value)} />
-                <Input label="Packaging" value={editing.packaging || ""} onChange={(e) => setField("packaging", e.target.value)} />
-              </div>
+              <Textarea
+                label="Long Description (Detail Page)"
+                value={editing.longDescription || ""}
+                onChange={(e) => setField("longDescription", e.target.value)}
+                placeholder="Comprehensive description for the product detail page..."
+                rows={4}
+              />
             </div>
           </section>
 
-          {/* Detail Page */}
+          {/* Features */}
           <section className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
-            <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">Detail Page Specs</h3>
-            <div className="flex flex-col gap-3">
-              <Textarea label="Description" value={editing.description || ""} onChange={(e) => setField("description", e.target.value)} rows={4} />
-              <div className="grid grid-cols-2 gap-3">
-                <Input label="Origin" value={editing.origin || ""} onChange={(e) => setField("origin", e.target.value)} />
-                <Input label="Grade / Size" value={editing.gradeSize || ""} onChange={(e) => setField("gradeSize", e.target.value)} />
-              </div>
-              <Textarea label="Appearance" value={editing.appearance || ""} onChange={(e) => setField("appearance", e.target.value)} rows={2} />
-              <Input label="Moisture" value={editing.moisture || ""} onChange={(e) => setField("moisture", e.target.value)} />
-            </div>
-          </section>
-
-          {/* Quality Parameters */}
-          <section className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
-            <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">Quality Parameters</h3>
+            <h3 className="text-xs font-bold text-[#00355F] uppercase tracking-widest">Bullet Features / Highlights</h3>
             <div className="flex flex-col gap-2">
-              {(editing.qualityParameters || []).map((qp, i) => (
+              {(editing.features || []).map((feat, i) => (
                 <div key={i} className="flex gap-2 items-center">
+                  <span className="text-xs text-slate-400 font-mono w-4">{i + 1}.</span>
                   <Input
-                    value={qp.label}
+                    value={feat}
                     onChange={(e) => {
-                      const updated = [...(editing.qualityParameters || [])];
-                      updated[i] = { ...updated[i], label: e.target.value };
-                      setField("qualityParameters", updated);
+                      const updated = [...(editing.features || [])];
+                      updated[i] = e.target.value;
+                      setField("features", updated);
                     }}
-                    placeholder="Label"
-                    className="flex-1"
-                  />
-                  <Input
-                    value={qp.value}
-                    onChange={(e) => {
-                      const updated = [...(editing.qualityParameters || [])];
-                      updated[i] = { ...updated[i], value: e.target.value };
-                      setField("qualityParameters", updated);
-                    }}
-                    placeholder="Value"
+                    placeholder="e.g. Engineered for site-specific span and load"
                     className="flex-1"
                   />
                   <button
+                    type="button"
                     onClick={() => {
-                      const updated = (editing.qualityParameters || []).filter((_, idx) => idx !== i);
-                      setField("qualityParameters", updated);
+                      const updated = (editing.features || []).filter((_, idx) => idx !== i);
+                      setField("features", updated);
                     }}
                     className="text-rose-400 hover:text-rose-600 p-2"
                   >
@@ -324,48 +332,45 @@ export default function ProductsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setField("qualityParameters", [...(editing.qualityParameters || []), { label: "", value: "" }])}
+                onClick={() => setField("features", [...(editing.features || []), ""])}
               >
-                <Plus className="w-3 h-3" /> Add Parameter
+                <Plus className="w-3.5 h-3.5" /> Add Feature
               </Button>
             </div>
           </section>
 
-          {/* Commercial */}
+          {/* Specifications */}
           <section className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
-            <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">Commercial Details</h3>
-            <div className="flex flex-col gap-3">
-              <Textarea label="Packaging Options" value={editing.packagingOptions || ""} onChange={(e) => setField("packagingOptions", e.target.value)} rows={2} />
-              <div className="grid grid-cols-2 gap-3">
-                <Input label="MOQ" value={editing.moq || ""} onChange={(e) => setField("moq", e.target.value)} />
-                <Input label="Shelf Life" value={editing.shelfLife || ""} onChange={(e) => setField("shelfLife", e.target.value)} />
-              </div>
-              <Textarea label="Private Label" value={editing.privateLabel || ""} onChange={(e) => setField("privateLabel", e.target.value)} rows={2} />
-              <Textarea label="Bulk Supply" value={editing.bulkSupply || ""} onChange={(e) => setField("bulkSupply", e.target.value)} rows={2} />
-              <Input label="Export Markets" value={editing.exportMarkets || ""} onChange={(e) => setField("exportMarkets", e.target.value)} />
-              <Input label="Sample Availability" value={editing.sampleAvailability || ""} onChange={(e) => setField("sampleAvailability", e.target.value)} />
-            </div>
-          </section>
-
-          {/* Processing Steps */}
-          <section className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
-            <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">Processing Steps</h3>
+            <h3 className="text-xs font-bold text-[#00355F] uppercase tracking-widest">Technical Specifications</h3>
             <div className="flex flex-col gap-2">
-              {(editing.processingSteps || []).map((step, i) => (
+              {(editing.specs || []).map((spec, i) => (
                 <div key={i} className="flex gap-2 items-center">
-                  <span className="text-xs text-slate-400 font-mono w-5 text-right">{i + 1}</span>
                   <Input
-                    value={step}
+                    value={spec.label}
                     onChange={(e) => {
-                      const updated = [...(editing.processingSteps || [])];
-                      updated[i] = e.target.value;
-                      setField("processingSteps", updated);
+                      const updated = [...(editing.specs || [])];
+                      updated[i] = { ...updated[i], label: e.target.value };
+                      setField("specs", updated);
                     }}
+                    placeholder="Label (e.g. Material)"
                     className="flex-1"
-                    placeholder="Step description"
+                  />
+                  <Input
+                    value={spec.value}
+                    onChange={(e) => {
+                      const updated = [...(editing.specs || [])];
+                      updated[i] = { ...updated[i], value: e.target.value };
+                      setField("specs", updated);
+                    }}
+                    placeholder="Value (e.g. MS / GI structural steel)"
+                    className="flex-1"
                   />
                   <button
-                    onClick={() => setField("processingSteps", (editing.processingSteps || []).filter((_, idx) => idx !== i))}
+                    type="button"
+                    onClick={() => {
+                      const updated = (editing.specs || []).filter((_, idx) => idx !== i);
+                      setField("specs", updated);
+                    }}
                     className="text-rose-400 hover:text-rose-600 p-2"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -375,16 +380,54 @@ export default function ProductsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setField("processingSteps", [...(editing.processingSteps || []), ""])}
+                onClick={() => setField("specs", [...(editing.specs || []), { label: "", value: "" }])}
               >
-                <Plus className="w-3 h-3" /> Add Step
+                <Plus className="w-3.5 h-3.5" /> Add Specification
+              </Button>
+            </div>
+          </section>
+
+          {/* Gallery Images */}
+          <section className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
+            <h3 className="text-xs font-bold text-[#00355F] uppercase tracking-widest">Detail Page Gallery Images</h3>
+            <div className="flex flex-col gap-2">
+              {(editing.gallery || []).map((gUrl, i) => (
+                <div key={i} className="flex gap-2 items-center">
+                  <Input
+                    value={gUrl}
+                    onChange={(e) => {
+                      const updated = [...(editing.gallery || [])];
+                      updated[i] = e.target.value;
+                      setField("gallery", updated);
+                    }}
+                    placeholder="Image URL or static path (e.g. /products/conveyor-structure-1.webp)"
+                    className="flex-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = (editing.gallery || []).filter((_, idx) => idx !== i);
+                      setField("gallery", updated);
+                    }}
+                    className="text-rose-400 hover:text-rose-600 p-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setField("gallery", [...(editing.gallery || []), ""])}
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Gallery Image URL
               </Button>
             </div>
           </section>
 
           {/* Settings */}
           <section className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
-            <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">Display Settings</h3>
+            <h3 className="text-xs font-bold text-[#00355F] uppercase tracking-widest">Display Settings</h3>
             <div className="grid grid-cols-2 gap-3">
               <Input label="Order" type="number" value={String(editing.order ?? 0)} onChange={(e) => setField("order", Number(e.target.value))} />
               <div className="flex flex-col gap-1.5 justify-end">
@@ -418,4 +461,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-
