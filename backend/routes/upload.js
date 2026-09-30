@@ -127,7 +127,7 @@ router.post("/", detectAdmin, upload.any(), async (req, res, next) => {
           .status(400)
           .json({
             success: false,
-            error: "Sirf PDF, DOC ya DOCX file allowed hai",
+            error: "Only DOCX and word files allowed for resumes",
           });
       }
       if (file.size > PUBLIC_MAX_BYTES) {
@@ -136,7 +136,7 @@ router.post("/", detectAdmin, upload.any(), async (req, res, next) => {
           .status(400)
           .json({
             success: false,
-            error: "File 5MB se badi nahi honi chahiye",
+            error: "File size should not exceed 5MB",
           });
       }
     }

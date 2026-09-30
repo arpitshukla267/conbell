@@ -11,7 +11,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // page load par saved token backend se verify karo
+  // On page load, verify the saved token with the backend
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -21,7 +21,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
           if (!cancelled && res.ok) setAuthed(true);
           else if (!res.ok) clearToken();
         } catch {
-          /* backend down hai, login screen dikhegi */
+          /* Backend is unreachable; the sign-in screen will be shown */
         }
       }
       if (!cancelled) setChecking(false);
@@ -31,7 +31,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // kahin bhi 401 aaya to login screen par wapas
+  // If any request returns 401, return to the sign-in screen
   useEffect(() => {
     const onLogout = () => setAuthed(false);
     window.addEventListener("cms-logout", onLogout);
@@ -53,11 +53,15 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ password: pw }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Login fail hua");
+      if (!res.ok)
+        throw new Error(data.error || "Sign-in failed. Please try again.");
       setToken(data.token);
       setAuthed(true);
     } catch (err: any) {
-      setError(err.message || "Server se connect nahi ho paya");
+      setError(
+        err.message ||
+          "Unable to connect to the server. Please try again later.",
+      );
       setPw("");
     } finally {
       setLoading(false);
@@ -90,13 +94,14 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
                 setPw(e.target.value);
                 setError("");
               }}
-              placeholder="Enter CMS password"
+              placeholder="Enter your CMS password"
               autoFocus
               className="w-full border border-slate-200 rounded-lg px-4 py-3.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#00355F]/30 focus:border-[#00355F]"
             />
             <button
               type="button"
               onClick={() => setShow(!show)}
+              aria-label={show ? "Hide password" : "Show password"}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               {show ? (

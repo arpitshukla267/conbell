@@ -77,7 +77,7 @@ Please reply to this email to confirm. If the slot doesn't work for you, let us 
 Regards,
 HR Team
 Conbell Engineering
-https://conbell.in`,
+https://conbellengineering.com`,
   },
   {
     id: "technical",
@@ -96,7 +96,7 @@ Please confirm by replying to this email. If you are joining online, make sure y
 Regards,
 HR Team
 Conbell Engineering
-https://conbell.in`,
+https://conbellengineering.com`,
   },
 ];
 

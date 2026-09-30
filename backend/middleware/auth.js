@@ -12,7 +12,7 @@ module.exports = async function requireAuth(req, res, next) {
     if (!admin || admin.tokenVersion !== payload.v) {
       return res
         .status(401)
-        .json({ error: "Session expired, dobara login karo" });
+        .json({ error: "Your session has expired. Please sign in again." });
     }
 
     req.admin = admin;

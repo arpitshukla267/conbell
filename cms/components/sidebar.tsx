@@ -84,7 +84,7 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
 
-  // resend cooldown timer
+  // Resend cooldown timer
   useEffect(() => {
     if (cooldown <= 0) return;
     const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
@@ -99,9 +99,12 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
         method: "POST",
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "OTP bhejne me problem aayi");
+      if (!res.ok)
+        throw new Error(
+          data.error || "Unable to send the OTP. Please try again.",
+        );
       setStep("verify");
-      setCooldown(60); // backend ka cooldown 60s hai
+      setCooldown(60); // Matches the 60-second cooldown enforced by the backend
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -111,11 +114,12 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
 
   const resetPassword = async () => {
     setError("");
-    if (!/^\d{6}$/.test(otp)) return setError("6 digit ka OTP daalo");
+    if (!/^\d{6}$/.test(otp))
+      return setError("Please enter a valid 6-digit OTP.");
     if (newPassword.length < 8)
-      return setError("Password kam se kam 8 characters ka hona chahiye");
+      return setError("Password must be at least 8 characters long.");
     if (newPassword !== confirmPassword)
-      return setError("Dono passwords match nahi kar rahe");
+      return setError("The passwords you entered do not match.");
 
     setLoading(true);
     try {
@@ -125,8 +129,12 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
         body: JSON.stringify({ otp, newPassword }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Password change nahi hua");
-      if (data.token) setToken(data.token); // purane sessions invalid, isliye naya token
+      if (!res.ok)
+        throw new Error(
+          data.error || "Unable to change the password. Please try again.",
+        );
+      // Previous sessions are invalidated, so store the newly issued token
+      if (data.token) setToken(data.token);
       setStep("done");
     } catch (e: any) {
       setError(e.message);
@@ -134,7 +142,7 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
       setLoading(false);
     }
   };
-  
+
   const inputCls =
     "w-full rounded-xl bg-slate-900/80 border border-slate-700 px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#4A90C4] transition-colors";
 
@@ -151,6 +159,9 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 10 }}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Change password"
         className="w-full max-w-sm rounded-2xl bg-[#0B1C30] border border-slate-800 p-6 text-slate-300 shadow-2xl"
       >
         <div className="flex items-center justify-between mb-5">
@@ -170,7 +181,9 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
         {step === "request" && (
           <div className="space-y-4">
             <p className="text-xs text-slate-400 leading-relaxed">
-              Please verify the otp to change password.
+              For your security, we will send a 6-digit one-time password (OTP)
+              to the registered administrator email address. Your password will
+              only be changed after the OTP has been verified.
             </p>
             {error && <p className="text-xs text-red-400">{error}</p>}
             <button
@@ -187,14 +200,15 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
         {step === "verify" && (
           <div className="space-y-3">
             <p className="text-xs text-slate-400">
-              OTP email par bhej diya gaya hai (10 minute tak valid).
+              An OTP has been sent to the registered email address. It is valid
+              for 10 minutes.
             </p>
             <input
               inputMode="numeric"
               maxLength={6}
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-              placeholder="6 digit OTP"
+              placeholder="Enter 6-digit OTP"
               className={cn(
                 inputCls,
                 "tracking-[0.4em] text-center font-semibold",
@@ -212,7 +226,7 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
                 type="button"
                 onClick={() => setShowPass((s) => !s)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
-                aria-label="Toggle password visibility"
+                aria-label={showPass ? "Hide password" : "Show password"}
               >
                 {showPass ? (
                   <EyeOff className="w-4 h-4" />
@@ -251,10 +265,10 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
           <div className="flex flex-col items-center gap-3 py-2 text-center">
             <CheckCircle2 className="w-10 h-10 text-emerald-400" />
             <p className="text-sm font-semibold text-white">
-              Password changed!
+              Password changed successfully
             </p>
             <p className="text-xs text-slate-400">
-              Ab se naye password se login karna.
+              Please use your new password the next time you sign in.
             </p>
             <button
               onClick={onClose}

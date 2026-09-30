@@ -50,7 +50,7 @@ We hope to have you on the team.
 Regards,
 HR Team
 Conbell Engineering
-https://conbell.in`,
+https://conbellengineering.com`,
   },
   {
     id: "formal_offer",
@@ -73,7 +73,7 @@ If anything is unclear or you would like to discuss the offer, let us know and w
 Regards,
 HR Team
 Conbell Engineering
-https://conbell.in`,
+https://conbellengineering.com`,
   },
 ];
 

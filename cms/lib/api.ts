@@ -23,7 +23,7 @@ async function req<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (res.status === 401) {
     handleUnauthorized();
-    throw new Error("Session expired, dobara login karo");
+    throw new Error("Your session has expired. Please sign in again.");
   }
 
   const json = await res.json();
@@ -418,7 +418,7 @@ export async function uploadFile(
 
   if (res.status === 401) {
     handleUnauthorized();
-    throw new Error("Session expired, dobara login karo");
+    throw new Error("Your session has expired. Please sign in again.");
   }
 
   const json = await res.json();
