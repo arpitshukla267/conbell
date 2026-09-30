@@ -481,3 +481,17 @@ router.delete("/:id", async (req, res, next) => {
 });
 
 module.exports = router;
+
+// GET /api/applications/count?status=pending - lightweight count for the sidebar badge
+router.get('/count', async (req, res, next) => {
+  try {
+    const { status } = req.query;
+    const filter = {};
+    if (status && status !== 'all') filter.status = status;
+
+    const count = await Application.countDocuments(filter);
+    res.json({ success: true, data: { count } });
+  } catch (error) {
+    next(error);
+  }
+});

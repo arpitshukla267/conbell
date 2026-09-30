@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { authFetch, setToken } from "@/lib/auth";
+import { applicationsApi } from "@/lib/api";
 
 const NAV = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -283,11 +284,39 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+/* ─────────────────── Pending applications badge hook ─────────────────── */
+
+function usePendingApplications() {
+  const pathname = usePathname();
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await applicationsApi.count("pending");
+        if (!cancelled) setCount(res.count);
+      } catch {
+        /* keep the previous count if the request fails */
+      }
+    };
+    load();
+    const id = setInterval(load, 60_000); // refresh every minute
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [pathname]); // also refresh on every page navigation
+
+  return count;
+}
+
 /* ───────────────────────────────── Sidebar ───────────────────────────────── */
 
 export function Sidebar() {
   const pathname = usePathname();
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const pendingCount = usePendingApplications();
 
   return (
     <aside className="w-64 shrink-0 bg-[#0B1C30] h-full flex flex-col border-r border-slate-800/60 text-slate-300">
@@ -353,6 +382,15 @@ export function Sidebar() {
                         <span className="relative z-10 flex-1">
                           {child.label}
                         </span>
+                        {child.href === "/dashboard/applications" &&
+                          pendingCount > 0 && (
+                            <span
+                              aria-label={`${pendingCount} new applications`}
+                              className="relative z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white shadow-sm shadow-red-500/40"
+                            >
+                              {pendingCount > 99 ? "99+" : pendingCount}
+                            </span>
+                          )}
                       </Link>
                     );
                   })}

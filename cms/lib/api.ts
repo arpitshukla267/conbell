@@ -388,6 +388,10 @@ export const applicationsApi = {
     }),
   delete: (id: string) =>
     req<{ message: string }>(`/api/applications/${id}`, { method: "DELETE" }),
+  count: (status?: string) =>
+    req<{ count: number }>(
+      `/api/applications/count${status ? `?status=${status}` : ""}`,
+    ),
 };
 
 // ─── Upload ───────────────────────────────────────────────────────────────────
