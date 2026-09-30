@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 const PasswordOtp = require("../models/PasswordOtp");
 const requireAuth = require("../middleware/auth");
-const { sendMail } = require("../utils/mailer");
+const { sendCmsMail } = require("../utils/mailer");
 
 const router = express.Router();
 
@@ -103,7 +103,8 @@ router.post("/password/send-otp", requireAuth, async (req, res, next) => {
     });
 
     try {
-      await sendMail({
+      // CMS domain (cms.conbellengineering.com) se jayega
+      await sendCmsMail({
         to,
         subject: "Conbell CMS - Password Reset OTP",
         html: `

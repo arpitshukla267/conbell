@@ -1,13 +1,13 @@
-const { Resend } = require('resend');
-const fs = require('fs');
-const path = require('path');
+const { Resend } = require("resend");
+const fs = require("fs");
+const path = require("path");
 
 let resendInstance = null;
 
 function getResendClient() {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    throw new Error('RESEND_API_KEY is not configured in backend environment.');
+    throw new Error("RESEND_API_KEY is not configured in backend environment.");
   }
   if (!resendInstance) {
     resendInstance = new Resend(apiKey);
@@ -17,29 +17,43 @@ function getResendClient() {
 
 /**
  * Reusable backend sendMail function using Resend
- * 
+ *
  * @param {Object} options
  * @param {string|string[]} options.to - Recipient email(s)
  * @param {string} options.subject - Email subject
  * @param {string} [options.html] - HTML body
  * @param {string} [options.text] - Plain text body
+ * @param {string} [options.from] - Sender override (verified domain ka hona chahiye)
+ * @param {string|string[]} [options.replyTo] - Reply-To address
  * @param {Array<{filename: string, content?: Buffer|string, path?: string, url?: string}>} [options.attachments]
  * @returns {Promise<{id: string, success: boolean}>}
  */
-async function sendMail({ to, subject, html, text, attachments = [] }) {
+async function sendMail({
+  to,
+  subject,
+  html,
+  text,
+  attachments = [],
+  from: fromOverride,
+  replyTo,
+}) {
   const resend = getResendClient();
-  const from = process.env.RESEND_FROM_EMAIL || 'Conbell Engineering <onboarding@resend.dev>';
+  const from =
+    fromOverride ||
+    process.env.RESEND_FROM_WEBSITE ||
+    process.env.RESEND_FROM_EMAIL ||
+    "Conbell Engineering <onboarding@resend.dev>";
 
   if (!to) {
-    throw new Error('Recipient email (to) is required.');
+    throw new Error("Recipient email (to) is required.");
   }
   if (!subject) {
-    throw new Error('Email subject is required.');
+    throw new Error("Email subject is required.");
   }
 
   // Format message content
-  const emailText = text || (html ? html.replace(/<[^>]*>?/gm, '') : '');
-  const emailHtml = html || (text ? text.replace(/\n/g, '<br/>') : '');
+  const emailText = text || (html ? html.replace(/<[^>]*>?/gm, "") : "");
+  const emailHtml = html || (text ? text.replace(/\n/g, "<br/>") : "");
 
   // Process attachments
   const formattedAttachments = [];
@@ -47,7 +61,7 @@ async function sendMail({ to, subject, html, text, attachments = [] }) {
     for (const att of attachments) {
       if (!att) continue;
 
-      const filename = att.filename || 'attachment.pdf';
+      const filename = att.filename || "attachment.pdf";
 
       // 1. Direct Buffer or string content
       if (att.content) {
@@ -62,9 +76,12 @@ async function sendMail({ to, subject, html, text, attachments = [] }) {
       if (!filePathOrUrl) continue;
 
       // 2. Local uploads directory file
-      if (filePathOrUrl.startsWith('/uploads/') || filePathOrUrl.startsWith('uploads/')) {
-        const cleanPath = filePathOrUrl.replace(/^\/?uploads\//, '');
-        const fullLocalPath = path.join(__dirname, '..', 'uploads', cleanPath);
+      if (
+        filePathOrUrl.startsWith("/uploads/") ||
+        filePathOrUrl.startsWith("uploads/")
+      ) {
+        const cleanPath = filePathOrUrl.replace(/^\/?uploads\//, "");
+        const fullLocalPath = path.join(__dirname, "..", "uploads", cleanPath);
         if (fs.existsSync(fullLocalPath)) {
           const fileBuffer = fs.readFileSync(fullLocalPath);
           formattedAttachments.push({
@@ -86,7 +103,10 @@ async function sendMail({ to, subject, html, text, attachments = [] }) {
       }
 
       // 4. Remote HTTP(S) URL (e.g. Cloudinary)
-      if (filePathOrUrl.startsWith('http://') || filePathOrUrl.startsWith('https://')) {
+      if (
+        filePathOrUrl.startsWith("http://") ||
+        filePathOrUrl.startsWith("https://")
+      ) {
         try {
           const res = await fetch(filePathOrUrl);
           if (res.ok) {
@@ -98,7 +118,10 @@ async function sendMail({ to, subject, html, text, attachments = [] }) {
             continue;
           }
         } catch (fetchErr) {
-          console.error(`Failed to fetch attachment from ${filePathOrUrl}:`, fetchErr);
+          console.error(
+            `Failed to fetch attachment from ${filePathOrUrl}:`,
+            fetchErr,
+          );
         }
 
         // Fallback to passing remote path directly
@@ -122,11 +145,13 @@ async function sendMail({ to, subject, html, text, attachments = [] }) {
     payload.attachments = formattedAttachments;
   }
 
+  if (replyTo) payload.replyTo = replyTo;
+
   const { data, error } = await resend.emails.send(payload);
 
   if (error) {
-    console.error('Resend send email error:', error);
-    throw new Error(error.message || 'Failed to send email through Resend');
+    console.error("Resend send email error:", error);
+    throw new Error(error.message || "Failed to send email through Resend");
   }
 
   return {
@@ -135,6 +160,34 @@ async function sendMail({ to, subject, html, text, attachments = [] }) {
   };
 }
 
+/**
+ * Website se jane wali mails: contact form, application received.
+ * Sender: conbellengineering.com
+ */
+const sendWebsiteMail = (opts) =>
+  sendMail({
+    ...opts,
+    from:
+      opts.from ||
+      process.env.RESEND_FROM_WEBSITE ||
+      process.env.RESEND_FROM_EMAIL,
+  });
+
+/**
+ * CMS se jane wali mails: OTP, interview, hire/offer letter, reject.
+ * Sender: cms.conbellengineering.com
+ * REPLY_TO_EMAIL set ho to replies us inbox me aayenge (optional).
+ */
+const sendCmsMail = (opts) =>
+  sendMail({
+    ...opts,
+    from:
+      opts.from || process.env.RESEND_FROM_CMS || process.env.RESEND_FROM_EMAIL,
+    replyTo: opts.replyTo || process.env.REPLY_TO_EMAIL || undefined,
+  });
+
 module.exports = {
   sendMail,
+  sendWebsiteMail,
+  sendCmsMail,
 };

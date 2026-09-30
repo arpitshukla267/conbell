@@ -170,8 +170,7 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
         {step === "request" && (
           <div className="space-y-4">
             <p className="text-xs text-slate-400 leading-relaxed">
-              Security ke liye ek 6 digit OTP registered admin email par bheja
-              jayega. OTP verify hone ke baad hi password change hoga.
+              Please verify the otp to change password.
             </p>
             {error && <p className="text-xs text-red-400">{error}</p>}
             <button
