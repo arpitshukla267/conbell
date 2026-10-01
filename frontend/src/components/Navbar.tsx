@@ -174,7 +174,7 @@ function NavbarContent({
               width={190}
               height={48}
               priority
-              className={`w-auto object-contain transition-all duration-300 ease-out -mx-8 ${
+              className={`w-auto object-contain transition-all duration-300 ease-out -mx-2 md:-mx-8 ${
                 scrolled ? "h-10 md:h-14" : "h-12 md:h-20"
               }`}
             />
